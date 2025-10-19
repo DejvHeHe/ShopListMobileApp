@@ -6,15 +6,16 @@ const port = 5000;
 app.use(cors());
 app.use(express.json());
 
-// import controllerů
-const shopListController = require("/Controllers/shopListController");
-const authController = require("/Controllers/authController");
+// Import routerů
+const authRouter = require("./routers/authRouter");
+const shopListRouter = require("./routers/shopListRouter");
 
-// endpointy
-app.use("/shoplist", shopListController);
-app.use("/auth", authController);
 
-// start serveru
+// Použití routerů
+app.use("/auth", authRouter);
+app.use("/shoplist", shopListRouter); // nebo zakomentuj, pokud ještě neexistuje
+
+// Start serveru
 app.listen(port, () => {
-  console.log(`Server běží na portu ${port}`);
+console.log(`Server běží na portu ${port}`);
 });

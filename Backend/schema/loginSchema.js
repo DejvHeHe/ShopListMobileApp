@@ -1,4 +1,4 @@
-const authschema = {
+const loginSchema = {
   type: "object",
   properties: {
     email: { type: "string" },
@@ -7,4 +7,4 @@ const authschema = {
   required: ["email","password"],
   additionalProperties: false,
 };
-module.exports = authSchema;
+module.exports = loginSchema;
