@@ -3,6 +3,9 @@ const addItemSchema = require("../schema/addItemSchema");
 const uncheckItemSchema = require("../schema/uncheckItemSchema");
 const removeSchema = require("../schema/removeSchema");
 const updateSchema = require("../schema/updateSchema");
+const editItemSchema = require("../schema/editItemSchema");
+const setArchivedSchema = require("../schema/setAchivedSchema");
+const removeItemSchema = require("../schema/removeItemSchema");
 const dao = require("../dao/shopList");
 const Ajv = require("ajv");
 const ajv = new Ajv();
@@ -29,6 +32,15 @@ class shopList {
     async list(dtoIn) {
         try {
             const result = await dao.list(dtoIn.userId);
+            return result;
+        } catch (err) {
+            console.error("Error in list:", err);
+            throw err;
+        }
+    }
+    async listArchived(dtoIn) {
+        try {
+            const result = await dao.listArchived(dtoIn.userId);
             return result;
         } catch (err) {
             console.error("Error in list:", err);
@@ -89,6 +101,23 @@ class shopList {
             throw err;
         }
     }
+    async removeItem(dtoIn){
+        try{
+            this.validate(dtoIn,removeItemSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            const result=await dao.removeItem(dtoIn.shopListId,dtoIn.itemId);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in remove shoplist:", err);
+            throw err;
+        }
+    }
     async update(dtoIn){
         try{
             this.validate(dtoIn,updateSchema);
@@ -98,6 +127,40 @@ class shopList {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
             const result=await dao.update(dtoIn.shopListId,dtoIn.newName);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in update shoplist:", err);
+            throw err;
+        }
+    }
+    async editItem(dtoIn){
+        try{
+            this.validate(dtoIn,editItemSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            const result=await dao.editItem(dtoIn.shopListId,dtoIn.itemId,dtoIn.newName,dtoIn.newCount);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in update shoplist:", err);
+            throw err;
+        }
+    }
+    async setArchived(dtoIn){
+        try{
+            this.validate(dtoIn,setArchivedSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            const result=await dao.setArchived(dtoIn.shopListId);
             return result;
 
         }

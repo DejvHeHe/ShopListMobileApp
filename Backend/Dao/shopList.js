@@ -56,6 +56,27 @@ async function list(ownerId)
 
     }
 }
+async function listArchived(ownerId)
+{
+    try{
+        await ensureConnection();
+        const result=await client
+        .db("ShopListMobileApp")
+        .collection("shopList")
+        .find({ownerId:ownerId,isArchived:true})
+        .toArray();
+
+        return result;
+
+    }
+    catch(err)
+    {
+    console.log("List archived error:",err)
+    
+    return { success: false, error: err };
+
+    }
+}
 async function addItem(item, shopListId) {
     try {
         await ensureConnection();
@@ -168,6 +189,69 @@ async function update(shopListId,newName) {
         return { success: false, error: err };
     }
 }
+async function editItem(shopListId,itemId,newName,newCount) {
+    try {
+        await ensureConnection();
+
+        const result = await client
+            .db("ShopListMobileApp")
+            .collection("shopList")
+            .updateOne(
+                { 
+                    _id: new ObjectId(shopListId),
+                    "items._id": new ObjectId(itemId)
+                },
+                { 
+                    $set: { "items.$.name": newName,"items.$.count":newCount } // upravujeme správné pole
+                }
+            );
+
+        return result;
+    } catch (err) {
+        console.log("Edit item error:", err);
+        return { success: false, error: err };
+    }
+}
+async function setArchived(shopListId) {
+    try {
+        await ensureConnection();
+
+        const result = await client
+        .db("ShopListMobileApp")
+        .collection("shopList")
+        .updateOne(
+            { _id: new ObjectId(shopListId) },
+            [
+            { $set: { isArchived: { $not: "$isArchived" } } }
+            ]
+        );
+
+
+        return result;
+    } catch (err) {
+        console.log("Archive shopList error:", err);
+        return { success: false, error: err };
+    }
+}
+async function removeItem(shopListId,itemId) {
+    try {
+        await ensureConnection();
+
+        const result = await client
+        .db("ShopListMobileApp")
+        .collection("shopList")
+        .updateOne(
+            { _id: new ObjectId(shopListId) },
+            { $pull: { items: { _id: new ObjectId(itemId) } } }
+        );
+
+
+        return result;
+    } catch (err) {
+        console.log("Uncheck item error:", err);
+        return { success: false, error: err };
+    }
+}
 module.exports = {
   
   create,
@@ -176,6 +260,10 @@ module.exports = {
   addItem,
   uncheckItem,
   remove,
-  update
+  update,
+  editItem,
+  setArchived,
+  listArchived,
+  removeItem
   
 };

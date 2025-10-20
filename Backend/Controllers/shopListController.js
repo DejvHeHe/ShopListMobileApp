@@ -78,3 +78,51 @@ exports.update = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+exports.editItem = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.editItem(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.setArchived = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.setArchived(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.listArchived = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.listArchived(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.removeItem = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.removeItem(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};

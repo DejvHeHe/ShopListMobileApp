@@ -9,5 +9,9 @@ router.post("/addItem", authMiddleware, shopListController.addItem);
 router.post("/uncheckItem", authMiddleware, shopListController.uncheckItem);
 router.post("/remove", authMiddleware, shopListController.remove);
 router.post("/update", authMiddleware, shopListController.update);
+router.post("/editItem", authMiddleware, shopListController.editItem);
+router.post("/setArchived", authMiddleware, shopListController.setArchived);
+router.post("/removeItem", authMiddleware, shopListController.removeItem);
+router.get("/listArchived", authMiddleware, shopListController.listArchived);
 
 module.exports = router;

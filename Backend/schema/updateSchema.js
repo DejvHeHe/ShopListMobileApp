@@ -1,4 +1,4 @@
-const addItemSchema = {
+const updateSchema = {
   type: "object",
   properties: {
     shopListId: { type: "string" },
@@ -10,4 +10,4 @@ const addItemSchema = {
   additionalProperties: false,
 };
 
-module.exports=addItemSchema;
+module.exports=updateSchema;
