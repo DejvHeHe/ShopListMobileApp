@@ -7,5 +7,7 @@ router.post("/create", authMiddleware, shopListController.create);
 router.get("/list", authMiddleware, shopListController.list);
 router.post("/addItem", authMiddleware, shopListController.addItem);
 router.post("/uncheckItem", authMiddleware, shopListController.uncheckItem);
+router.post("/remove", authMiddleware, shopListController.remove);
+router.post("/update", authMiddleware, shopListController.update);
 
 module.exports = router;

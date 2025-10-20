@@ -1,6 +1,8 @@
 const createSchema = require("../schema/createSchema");
 const addItemSchema = require("../schema/addItemSchema");
 const uncheckItemSchema = require("../schema/uncheckItemSchema");
+const removeSchema = require("../schema/removeSchema");
+const updateSchema = require("../schema/updateSchema");
 const dao = require("../dao/shopList");
 const Ajv = require("ajv");
 const ajv = new Ajv();
@@ -12,7 +14,6 @@ class shopList {
             this.validate(dtoIn, createSchema);
             const shopList={
                 name:dtoIn.name,
-                count:0,
                 isArchived:false,
                 ownerId:dtoIn.userId
             }
@@ -68,6 +69,40 @@ class shopList {
             return result;
         } catch (err) {
             console.error("Error in uncheckItem:", err);
+            throw err;
+        }
+    }
+    async remove(dtoIn){
+        try{
+            this.validate(dtoIn,removeSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            const result=await dao.remove(dtoIn.shopListId);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in remove shoplist:", err);
+            throw err;
+        }
+    }
+    async update(dtoIn){
+        try{
+            this.validate(dtoIn,updateSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            const result=await dao.update(dtoIn.shopListId,dtoIn.newName);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in update shoplist:", err);
             throw err;
         }
     }

@@ -77,7 +77,7 @@ async function addItem(item, shopListId) {
         return { success: false, error: err };
     }
 }
-async function uncheckItem(itemId, shopListId) {
+async function uncheckItem(shopListId,itemId) {
     try {
         await ensureConnection();
 
@@ -103,11 +103,11 @@ async function uncheckItem(itemId, shopListId) {
 
 
 
-async function getShopList(_id)
+async function getShopList(shopListId)
 {
      try{
         await ensureConnection();
-         const objectId = new ObjectId(shopListID);
+        const objectId = new ObjectId(shopListId);
         const result=await client
         .db("ShopListMobileApp")
         .collection("shopList")
@@ -118,12 +118,55 @@ async function getShopList(_id)
     }
     catch(err)
     {
-    console.log("Add item error:",err)
+    console.log("Get shopList err:",err)
     
     return { success: false, error: err };
 
     }
 
+}
+async function remove(shopListId) {
+    try{
+        await ensureConnection();
+        const objectId = new ObjectId(shopListId);
+        const result=await client
+        .db("ShopListMobileApp")
+        .collection("shopList")
+        .deleteOne({_id:objectId})
+
+        return result;
+
+    }
+    catch(err)
+    {
+        console.log("Delete shopList err:",err)
+    
+        return { success: false, error: err };
+
+    }
+    
+}
+async function update(shopListId,newName) {
+    try {
+        await ensureConnection();
+
+        const result = await client
+            .db("ShopListMobileApp")
+            .collection("shopList")
+            .updateOne(
+                { 
+                    _id: new ObjectId(shopListId),
+                },
+                { 
+                    $set: { name: newName } // upravujeme správné pole
+                }
+            );
+
+        return result;
+    } catch (err) {
+        console.log("Update shopList error:", err);
+        return { success: false, error: err };
+    }
 }
 module.exports = {
   
@@ -132,5 +175,7 @@ module.exports = {
   getShopList,
   addItem,
   uncheckItem,
+  remove,
+  update
   
 };

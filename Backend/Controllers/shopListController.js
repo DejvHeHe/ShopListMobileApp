@@ -54,3 +54,27 @@ exports.uncheckItem = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+exports.remove = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.remove(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.update = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.update(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
