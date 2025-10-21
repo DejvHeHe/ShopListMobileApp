@@ -6,6 +6,9 @@ const updateSchema = require("../schema/updateSchema");
 const editItemSchema = require("../schema/editItemSchema");
 const setArchivedSchema = require("../schema/setAchivedSchema");
 const removeItemSchema = require("../schema/removeItemSchema");
+const shareSchema = require("../schema/shareSchema");
+const viewSharedToSchema = require("../schema/viewSharedToSchema");
+const removeFromShareSchema = require("../schema/removeFromShareSchema");
 const dao = require("../dao/shopList");
 const Ajv = require("ajv");
 const ajv = new Ajv();
@@ -44,6 +47,30 @@ class shopList {
             return result;
         } catch (err) {
             console.error("Error in list:", err);
+            throw err;
+        }
+    }
+    async listShared(dtoIn) {
+        try {
+            const result = await dao.listShared(dtoIn.userId);
+            return result;
+        } catch (err) {
+            console.error("Error in  shared list:", err);
+            throw err;
+        }
+    }
+    async viewSharedTo(dtoIn) {
+        try {
+            this.validate(dtoIn, viewSharedToSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId)
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            const result = await dao.viewSharedTo(dtoIn.shopListId);
+            return result;
+        } catch (err) {
+            console.error("Error in view shared to:", err);
             throw err;
         }
     }
@@ -92,6 +119,11 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
+            if(exist.ownerId!==dtoIn.userId)
+            {
+                throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
+
+            }
             const result=await dao.remove(dtoIn.shopListId);
             return result;
 
@@ -125,6 +157,11 @@ class shopList {
             if(!exist)
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            if(exist.ownerId!==dtoIn.userId)
+            {
+                throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
+
             }
             const result=await dao.update(dtoIn.shopListId,dtoIn.newName);
             return result;
@@ -160,12 +197,67 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
+            if(exist.ownerId!==dtoIn.userId)
+            {
+                throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
+
+            }
             const result=await dao.setArchived(dtoIn.shopListId);
             return result;
 
         }
         catch (err) {
             console.error("Error in update shoplist:", err);
+            throw err;
+        }
+    }
+    async share(dtoIn){
+        try{
+            this.validate(dtoIn,shareSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            if(exist.ownerId!==dtoIn.userId)
+            {
+                throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
+
+            }
+            const result=await dao.share(dtoIn.shopListId,dtoIn.email);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in share shoplist:", err);
+            throw err;
+        }
+    }
+    async removeFromShare(dtoIn){
+        try{
+            this.validate(dtoIn,removeFromShareSchema);
+            const exist=await dao.getShopList(dtoIn.shopListId);
+            if(!exist)
+            {
+                throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
+            }
+            if(exist.ownerId!==dtoIn.userId)
+            {
+                if(dtoIn.userId!==dtoIn.removeId)
+                {
+                    throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
+
+                }
+                const result=await dao.removeFromShare(dtoIn.shopListId,dtoIn.removeId);
+                
+
+            }
+            const result=await dao.removeFromShare(dtoIn.shopListId,dtoIn.removeId);
+            return result;
+
+        }
+        catch (err) {
+            console.error("Error in removeFromShare:", err);
             throw err;
         }
     }

@@ -133,6 +133,7 @@ async function getShopList(shopListId)
         .db("ShopListMobileApp")
         .collection("shopList")
         .findOne({_id:objectId})
+        
 
         return result;
 
@@ -252,6 +253,94 @@ async function removeItem(shopListId,itemId) {
         return { success: false, error: err };
     }
 }
+async function share(shopListId, email) {
+  try {
+        await ensureConnection();
+
+        const result = await client
+        .db("ShopListMobileApp")
+        .collection("users")
+        .updateOne(
+            { email: email },
+            { $push: { sharedShopList: shopListId } }
+        );
+
+        return result;
+  } catch (err) {
+    console.log("Share shopList error:", err);
+    return { success: false, error: err };
+  }
+}
+async function listShared(userId) {
+  try {
+    await ensureConnection();
+
+    // Najdi uživatele podle userId
+    const user = await client
+      .db("ShopListMobileApp")
+      .collection("users")
+      .findOne({_id:new ObjectId(userId) });
+    
+    
+    if (!user || !user.sharedShopList || user.sharedShopList.length === 0) {
+      return [];
+    }
+
+    // Převeď ID na ObjectId, pokud jsou uložené jako stringy
+    const ids = user.sharedShopList.map(id => new ObjectId(id));
+
+    // Najdi všechny shoplisty, které odpovídají těmto ID
+    const result = await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .find({ _id: { $in: ids } })
+      .toArray();
+
+    return result;
+  } catch (err) {
+    console.log("List shared error:", err);
+    return { success: false, error: err };
+  }
+}
+async function viewSharedTo(shopListId) {
+  try {
+    await ensureConnection();
+
+    // Najdi uživatele podle userId
+    const result = await client
+      .db("ShopListMobileApp")
+      .collection("users")
+      .find({sharedShopList:shopListId})
+      .toArray();   
+
+    
+
+    return result;
+  } catch (err) {
+    console.log("View shared to error:", err);
+    return { success: false, error: err };
+  }
+}
+async function removeFromShare(shopListId, removeId) {
+  try {
+        await ensureConnection();
+
+        const result = await client
+        .db("ShopListMobileApp")
+        .collection("users")
+        .updateOne(
+            { _id: new ObjectId(removeId) },
+            { $pull: { sharedShopList: shopListId } }
+        );
+
+        return result;
+  } catch (err) {
+    console.log("Remove from shared ShopList error:", err);
+    return { success: false, error: err };
+  }
+}
+
+
 module.exports = {
   
   create,
@@ -264,6 +353,10 @@ module.exports = {
   editItem,
   setArchived,
   listArchived,
-  removeItem
+  removeItem,
+  share,
+  listShared,
+  viewSharedTo,
+  removeFromShare
   
 };

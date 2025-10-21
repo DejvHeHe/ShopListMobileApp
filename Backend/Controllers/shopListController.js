@@ -126,3 +126,51 @@ exports.removeItem = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 };
+exports.share = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.share(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.listShared = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.listShared(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.viewSharedTo = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.viewSharedTo(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
+exports.removeFromShare = async (req, res) => {
+    try {
+        const dtoIn = { ...req.body, userId: req.user.userId };
+        const result = await shopList.removeFromShare(dtoIn);
+        res.status(200).json(result);
+    } catch (err) {
+        if (err.code === "dtoInIsNotValid") {
+            return res.status(400).json({ validationError: err.validationError });
+        }
+        res.status(400).json({ error: err.message });
+    }
+};
