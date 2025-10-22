@@ -24,6 +24,7 @@ async function ensureConnection() {
 async function create(dtoIn) {
     try {
         await ensureConnection();
+        dtoIn.ownerId=new ObjectId(dtoIn.ownerId)
         const result = await client
             .db("ShopListMobileApp")
             .collection("shopList")
