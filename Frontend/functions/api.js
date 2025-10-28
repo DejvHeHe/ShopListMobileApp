@@ -75,3 +75,30 @@ export async function create(data) {
     return { error: true, message: error.message };
   }
 }
+export async function list() {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://192.168.100.13:5000/shoplist/list", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      }
+      
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      return { error: true, message: result.message };
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error during list:", error);
+    return { error: true, message: error.message };
+  }
+}

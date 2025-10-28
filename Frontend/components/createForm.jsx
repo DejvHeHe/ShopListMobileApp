@@ -50,7 +50,7 @@ export default function CreateForm({ onClose }) {
   );
 }
 
-// ...styles zůstávají stejné
+
 
 
 const styles = StyleSheet.create({

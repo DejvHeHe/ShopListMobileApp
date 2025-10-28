@@ -1,15 +1,17 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Footer from '../components/footer';
+import Dashboard from '../components/dashboard';
+import { list } from '../functions/api';
 
 export default function DashboardPage() {
-  const navigation = useNavigation();
+  
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.header}>Moje ShopListy</Text>
+        <Dashboard listFunction={list}/>
 
         
 
