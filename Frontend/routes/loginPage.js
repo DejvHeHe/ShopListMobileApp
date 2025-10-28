@@ -29,7 +29,7 @@ export default function LoginPage() {
 
     }
     else{
-      navigation.navigate("Main")
+      navigation.navigate("Dashboard")
 
     }
     
@@ -78,9 +78,7 @@ export default function LoginPage() {
           <Text style={styles.buttonText}>Create account</Text>
         </Pressable>
       </View>
-      <View style={styles.forgotPassword}>
-        <Text onPress={()=>navigation.navigate('PasswordReset1')}>Forgot password?</Text>
-      </View>
+      
     </View>
   );
 }

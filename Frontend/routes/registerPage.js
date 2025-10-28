@@ -42,7 +42,7 @@ export default function RegisterPage() {
       
     else{
       const loginResult=await login(data);
-      navigation.navigate('Main');
+      navigation.navigate('Dashboard');
 
     }
     
