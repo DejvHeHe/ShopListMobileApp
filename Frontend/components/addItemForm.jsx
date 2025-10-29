@@ -1,24 +1,28 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
-import { create } from '../functions/shopListProvider';
+import { addItem } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
-import { list } from '../functions/shopListProvider';
 
-export default function CreateForm({ onClose }) {
+
+export default function AddeItemForm({ shopList,onClose }) {
   const [name, setName] = useState("");
+  const [count, setCount] = useState(1);
 
-  const handleCreate = async () => {
+  const handleAddItem = async () => {
     try {
-      const data = { name };
-      const result = await create(data);
+      const data = { shopListId:shopList._id,
+            itemName:name,
+            count:count};
+      
+        const result = await addItem(data);
 
       if (result.error) {
         Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
         return;
       }
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl vytvořen' });
-      await list();
+      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán' });
+      
       onClose();
     } catch (error) {
       console.log("Create form error:", error);
@@ -28,18 +32,29 @@ export default function CreateForm({ onClose }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Jméno nákupního seznamu:</Text>
+      <Text style={styles.label}>Jméno položky:</Text>
       <TextInput
         style={styles.input}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
-        placeholder="Zadej název..."
-        placeholderTextColor="#888"
+
+
       />
+      <Text style={styles.label}>Počet:</Text>
+      <TextInput
+        style={styles.input}
+        value={count.toString()} // musí být string pro TextInput
+        keyboardType="numeric"
+        onChange={e => {
+            const val = parseInt(e.nativeEvent.text, 10);
+            setCount(isNaN(val) ? 0 : val); // pokud není číslo, nastav 0
+        }}
+        />
+
 
       <Pressable
         style={[styles.button, !name && { opacity: 0.5 }]}
-        onPress={handleCreate}
+        onPress={handleAddItem}
         disabled={!name}
       >
         <Text style={styles.buttonText}>Potvrdit</Text>

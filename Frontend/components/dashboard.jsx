@@ -1,4 +1,4 @@
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, Text, StyleSheet, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import ShopList from './shopList';
 
@@ -17,24 +17,37 @@ export default function Dashboard({ listFunction }) {
 
   useEffect(() => {    
     getShopList();
-    
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20 }}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       {shopLists.length === 0 ? (
-        <Text style={{ textAlign: 'center', marginTop: 50 }}>Žádné seznamy</Text>
+        <Text style={styles.emptyText}>Žádné seznamy</Text>
       ) : (
-      shopLists.map(list => {
-        console.log("Seznam je",list); // vypíše do konzole
-        return <ShopList key={list._id} shopList={list} />;
-      })
-
-
+        <View style={styles.gridContainer}>
+          {shopLists.map(list => (
+            <ShopList key={list._id} shopList={list} />
+          ))}
+        </View>
       )}
     </ScrollView>
   );
 }
 
-
-
+const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 50,
+    color: '#666',
+    fontSize: 18,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+});

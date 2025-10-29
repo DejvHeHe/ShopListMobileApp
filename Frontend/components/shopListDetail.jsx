@@ -1,0 +1,126 @@
+import { Pressable, StyleSheet, Text, View, ScrollView, Modal } from 'react-native';
+import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import AddItemForm from './addItemForm';
+import Item from './item';
+
+export default function ShopListDetail({ shopList }) {
+  const [isAddOpen, setIsAddOpen] = useState(false);
+
+  const openAddItem = () => {
+    setIsAddOpen(true);
+  };
+
+  const closeAddItem = () => {
+    setIsAddOpen(false);
+  };
+
+  return (
+    <View style={styles.modalContent}>
+      <View style={styles.handle} />
+
+      <View style={styles.titleRow}>
+        <Text style={styles.modalTitle}>Detail seznamu: {shopList.name}</Text>
+        <Pressable style={styles.iconButton}>
+          <Ionicons name="pencil" size={24} color="#fff" />
+        </Pressable>
+      </View>
+
+      <Pressable style={styles.addButton} onPress={openAddItem}>
+        <Text style={styles.addButtonText}>+ Přidat položku</Text>
+      </Pressable>
+
+      <ScrollView style={styles.itemsContainer}>
+        {shopList.items && shopList.items.length > 0 ? (
+          shopList.items.map((item, index) => (
+            <Item item={item} shopListId={shopList._id}/>
+          ))
+        ) : (
+          <Text style={styles.itemText}>Žádné položky</Text>
+        )}
+      </ScrollView>
+
+      {/* Modal pro přidání nové položky */}
+      <Modal
+        visible={isAddOpen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeAddItem}
+      >
+        <View style={styles.addItemModalBackground}>
+          <View style={styles.addItemModalContent}>
+            <AddItemForm shopList={shopList} onClose={closeAddItem} />
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  modalContent: {
+    width: '100%',
+    maxHeight: '70%',
+    backgroundColor: '#000',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  handle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#888',
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  iconButton: {
+    padding: 4,
+  },
+  addButton: {
+    backgroundColor: '#222',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 15,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  itemsContainer: {
+    flexGrow: 0,
+  },
+  itemText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  addItemModalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  addItemModalContent: {
+    backgroundColor: '#000',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '50%',
+  },
+});

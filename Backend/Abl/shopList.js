@@ -69,7 +69,7 @@ class shopList {
             }
             const result = await dao.viewSharedTo(dtoIn.shopListId);
             
-            await this.isMember(dtoIn)
+            await this.isMember(dtoIn,exist);
             return result
             
             
@@ -91,7 +91,7 @@ class shopList {
             }
 
             
-            await this.isMember(dtoIn)
+            await this.isMember(dtoIn,exist);
 
             // Přidání položky
             const item = {
@@ -119,7 +119,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-            await this.isMember(dtoIn)
+            await this.isMember(dtoIn,exist);
 
             const result = await dao.uncheckItem(dtoIn.shopListId,dtoIn.itemId);
             return result;
@@ -159,7 +159,7 @@ class shopList {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
             
-            await this.isMember(dtoIn)
+            await this.isMember(dtoIn,exist);
             const result=await dao.removeItem(dtoIn.shopListId,dtoIn.itemId);
             return result;
 
@@ -199,7 +199,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-            await this.isMember(dtoIn)
+            await this.isMember(dtoIn,exist);
             const result=await dao.editItem(dtoIn.shopListId,dtoIn.itemId,dtoIn.newName,dtoIn.newCount);
             return result;
 
@@ -265,7 +265,7 @@ class shopList {
                 if (dtoIn.userId !== dtoIn.removeId) {
                     throw { code: "shopListIsNotYours", message: "Nejste vlastníkem shoplistu" };
                 }
-                    await this.isMember(dtoIn);
+                    await this.isMember(dtoIn,exist);
             }
 
             const result = await dao.removeFromShare(dtoIn.shopListId, dtoIn.removeId);
@@ -279,14 +279,14 @@ class shopList {
         }
     }
 
-    async isMember(dtoIn)
+    async isMember(dtoIn,exist)
     {
         const members = await dao.viewSharedTo(dtoIn.shopListId);
             const isSharedMember = members.some(
                 (user) => user._id.toString() === dtoIn.userId.toString()
             );
 
-            if (!isSharedMember) {
+            if (!isSharedMember && exist.ownerId.toString() !== dtoIn.userId.toString()) {
                 throw { code: "youAreNotMember", message: "Nejste členem shoplistu" };
             }
     }

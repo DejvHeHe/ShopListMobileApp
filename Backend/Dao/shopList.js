@@ -43,7 +43,7 @@ async function list(ownerId)
         const result=await client
         .db("ShopListMobileApp")
         .collection("shopList")
-        .find({ownerId:ownerId,isArchived:false})
+        .find({ownerId:new ObjectId(ownerId),isArchived:false})
         .toArray();
 
         return result;

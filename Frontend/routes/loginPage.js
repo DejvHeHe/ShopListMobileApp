@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View, TextInput, TouchableOpacity } from '
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { login } from '../functions/api';
+import { login } from '../functions/userProvider';
 import Toast from 'react-native-toast-message';
 
 export default function LoginPage() {
