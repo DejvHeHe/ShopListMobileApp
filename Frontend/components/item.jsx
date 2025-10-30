@@ -3,16 +3,19 @@ import React, { useState } from 'react';
 import Checkbox from 'expo-checkbox'; 
 import { uncheckItem, removeItem } from '../functions/shopListProvider';
 import { Ionicons } from '@expo/vector-icons';
+import { useShopList } from '../functions/contexts/shopListContext';
 
 export default function Item({ item, shopListId }) {
   const [checked, setChecked] = useState(item.state === 'checked');
   const data = { shopListId, itemId: item._id };
+  const { shopLists, refresh } = useShopList();
 
   const handleChange = async () => {
     if (!checked) {
       setChecked(true);
       try {
         await uncheckItem(data);
+       
       } catch (err) {
         console.error("Chyba při update itemu:", err);
       }
@@ -22,6 +25,7 @@ export default function Item({ item, shopListId }) {
   const handleRemove = async () => {
     try {
       await removeItem(data);
+      await refresh();
       console.log('Item odstraněn');
     } catch (err) {
       console.error('Chyba při odstranění itemu:', err);

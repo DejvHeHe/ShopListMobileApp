@@ -136,7 +136,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-            if(exist.ownerId!==dtoIn.userId)
+            if(exist.ownerId.toString()!==dtoIn.userId)
             {
                 throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
 
@@ -177,7 +177,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-            if(exist.ownerId!==dtoIn.userId)
+            if(exist.ownerId.toString()!==dtoIn.userId)
             {
                 throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
 
@@ -217,7 +217,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-            if(exist.ownerId!==dtoIn.userId)
+            if(exist.ownerId.toString()!==dtoIn.userId)
             {
                 throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
 
@@ -239,7 +239,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-            if(exist.ownerId!==dtoIn.userId)
+            if(exist.ownerId.toString()!==dtoIn.userId)
             {
                 throw { code: "shopListIsNotYours", message:"Nejste vlastníkem shopLIstu" };
 
@@ -261,7 +261,7 @@ class shopList {
             {
                 throw { code: "shopListDoesNotExist", message:"ShopList neexistuje" };
             }
-           if (exist.ownerId !== dtoIn.userId) {
+           if (exist.ownerId.toString() !== dtoIn.userId) {
                 if (dtoIn.userId !== dtoIn.removeId) {
                     throw { code: "shopListIsNotYours", message: "Nejste vlastníkem shoplistu" };
                 }
@@ -286,7 +286,7 @@ class shopList {
                 (user) => user._id.toString() === dtoIn.userId.toString()
             );
 
-            if (!isSharedMember && exist.ownerId.toString() !== dtoIn.userId.toString()) {
+            if (!isSharedMember && exist.ownerId.toString().toString() !== dtoIn.userId.toString()) {
                 throw { code: "youAreNotMember", message: "Nejste členem shoplistu" };
             }
     }

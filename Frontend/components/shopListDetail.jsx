@@ -3,17 +3,12 @@ import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AddItemForm from './addItemForm';
 import Item from './item';
+import UpdateShopListNameForm from './updateShopListNameForm';
+import ListOfMembers from './listOfMembers';
 
 export default function ShopListDetail({ shopList }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
-
-  const openAddItem = () => {
-    setIsAddOpen(true);
-  };
-
-  const closeAddItem = () => {
-    setIsAddOpen(false);
-  };
+  const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
 
   return (
     <View style={styles.modalContent}>
@@ -21,35 +16,50 @@ export default function ShopListDetail({ shopList }) {
 
       <View style={styles.titleRow}>
         <Text style={styles.modalTitle}>Detail seznamu: {shopList.name}</Text>
-        <Pressable style={styles.iconButton}>
+        <Pressable style={styles.iconButton} onPress={() => setUpdateNameOpen(true)}>
           <Ionicons name="pencil" size={24} color="#fff" />
         </Pressable>
       </View>
 
-      <Pressable style={styles.addButton} onPress={openAddItem}>
+      <Pressable style={styles.addButton} onPress={() => setIsAddOpen(true)}>
         <Text style={styles.addButtonText}>+ Přidat položku</Text>
       </Pressable>
 
       <ScrollView style={styles.itemsContainer}>
         {shopList.items && shopList.items.length > 0 ? (
           shopList.items.map((item, index) => (
-            <Item item={item} shopListId={shopList._id}/>
+            <Item key={item._id || index} item={item} shopListId={shopList._id} />
           ))
         ) : (
-          <Text style={styles.itemText}>Žádné položky</Text>
+          <Text>Žádné položky</Text>
         )}
+
       </ScrollView>
+      <ListOfMembers shopListId={shopList._id}/>
 
       {/* Modal pro přidání nové položky */}
       <Modal
         visible={isAddOpen}
         transparent={true}
         animationType="slide"
-        onRequestClose={closeAddItem}
+        onRequestClose={() => setIsAddOpen(false)}
       >
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>
-            <AddItemForm shopList={shopList} onClose={closeAddItem} />
+            <AddItemForm shopList={shopList} onClose={() => setIsAddOpen(false)} />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={isUpdateNameOpen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setUpdateNameOpen(false)}
+      >
+        <View style={styles.addItemModalBackground}>
+          <View style={styles.addItemModalContent}>
+            <UpdateShopListNameForm shopList={shopList} onClose={() => setUpdateNameOpen(false)}/>
           </View>
         </View>
       </Modal>

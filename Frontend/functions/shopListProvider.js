@@ -6,7 +6,7 @@ export async function create(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://172.24.32.1:5000/shoplist/create", {
+    const response = await fetch("http://:5000/shoplist/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export async function list() {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://172.24.32.1:5000/shoplist/list", {
+    const response = await fetch("http://:5000/shoplist/list", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export async function addItem(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://172.24.32.1:5000/shoplist/addItem", {
+    const response = await fetch("http://:5000/shoplist/addItem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export async function uncheckItem(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://172.24.32.1:5000/shoplist/uncheckItem", {
+    const response = await fetch("http://:5000/shoplist/uncheckItem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +114,7 @@ export async function removeItem(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://172.24.32.1:5000/shoplist/removeItem", {
+    const response = await fetch("http://:5000/shoplist/removeItem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,3 +136,68 @@ export async function removeItem(data) {
     return { error: true, message: error.message };
   }
 }
+export async function update(data) {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://:5000/shoplist/update", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      return { error: true, message: result.message };
+    }
+
+    return { error: false, data: result };
+  } catch (error) {
+    console.error("Error during update shopList:", error);
+    return { error: true, message: error.message };
+  }
+}
+
+
+export async function viewSharedTo(data) {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://:5000/shoplist/viewSharedTo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    console.log("Response viewSharedTo:", result);
+
+    if (!response.ok) {
+      console.error("Server vrátil chybu:", result.message || result);
+      return [];
+    }
+
+    // ✅ pokud server vrátí pole (jako v tvém příkladu), vrať ho rovnou
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    // fallback – kdyby se někdy formát změnil
+    return [];
+  } catch (error) {
+    console.error("Error during viewSharedTo:", error);
+    return [];
+  }
+}
+
+

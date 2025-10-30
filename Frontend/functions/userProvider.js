@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export async function register(data) {
   try {
-    const response = await fetch("http://172.24.32.1:5000/auth/register", {
+    const response = await fetch("http://:5000/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -21,7 +21,7 @@ export async function register(data) {
 
 export async function login(data) {
   try {
-    const response = await fetch("http://172.24.32.1:5000/auth/login", {
+    const response = await fetch("http://:5000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
