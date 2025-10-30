@@ -2,10 +2,11 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import { create } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
-import { list } from '../functions/shopListProvider';
+import { useShopList } from '../functions/contexts/shopListContext';
 
 export default function CreateForm({ onClose }) {
   const [name, setName] = useState("");
+  const { shopLists, refresh } = useShopList();
 
   const handleCreate = async () => {
     try {
@@ -18,7 +19,7 @@ export default function CreateForm({ onClose }) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl vytvořen' });
-      await list();
+      await refresh()
       onClose();
     } catch (error) {
       console.log("Create form error:", error);

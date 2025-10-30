@@ -1,31 +1,35 @@
 import { ScrollView, Text, StyleSheet, View } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ShopList from './shopList';
+import { useShopList } from '../functions/contexts/shopListContext';
 
 export default function Dashboard({ listFunction }) {
-  const [shopLists, setShopLists] = useState([]);
+  const { shopLists, refresh } = useShopList();
+  
+  useEffect(() => {
+    const loadLists = async () => {
+      try {
+        if (listFunction === "list") {
+          await refresh();
+        } 
+      } catch (error) {
+        console.error("Error during list fetch:", error);
+        setCustomLists([]);
+      }
+    };
 
-  const getShopList = async () => {
-    try {
-      const lists = await listFunction();
-      setShopLists(Array.isArray(lists) ? lists : []);
-    } catch (error) {
-      console.error("Error during list:", error);
-      setShopLists([]);
-    }
-  };
+    loadLists();
+  }, [listFunction]);
 
-  useEffect(() => {    
-    getShopList();
-  }, []);
+  const activeLists = listFunction === "list" ? shopLists : customLists;
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {shopLists.length === 0 ? (
+      {activeLists.length === 0 ? (
         <Text style={styles.emptyText}>Žádné seznamy</Text>
       ) : (
         <View style={styles.gridContainer}>
-          {shopLists.map(list => (
+          {activeLists.map(list => (
             <ShopList key={list._id} shopList={list} />
           ))}
         </View>

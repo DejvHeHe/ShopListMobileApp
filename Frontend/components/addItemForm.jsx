@@ -2,11 +2,13 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import { addItem } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
+import { useShopList } from '../functions/contexts/shopListContext';
 
 
 export default function AddeItemForm({ shopList,onClose }) {
   const [name, setName] = useState("");
   const [count, setCount] = useState(1);
+  const { shopLists, refresh } = useShopList();
 
   const handleAddItem = async () => {
     try {
@@ -22,7 +24,7 @@ export default function AddeItemForm({ shopList,onClose }) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán' });
-      
+      await refresh()
       onClose();
     } catch (error) {
       console.log("Create form error:", error);

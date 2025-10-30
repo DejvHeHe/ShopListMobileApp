@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Footer from '../components/footer';
 import Dashboard from '../components/dashboard';
-import { list } from '../functions/shopListProvider';
+
 
 export default function DashboardPage() {
   
@@ -11,7 +11,7 @@ export default function DashboardPage() {
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.header}>Moje ShopListy</Text>
-        <Dashboard listFunction={list}/>
+        <Dashboard listFunction="list"/>
 
         
 
