@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View, ScrollView, Modal } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AddItemForm from './addItemForm';
 import Item from './item';
@@ -9,6 +9,22 @@ import ListOfMembers from './listOfMembers';
 export default function ShopListDetail({ shopList }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
+  const [isFilterActive, setIsFilterActive] = useState(false);
+  const [filteredItems, setFilteredItems] = useState(shopList.items || []);
+
+  // refreshuje seznam podle stavu filtru
+  const handleFilterPress = () => {
+    setIsFilterActive(prev => !prev);
+  };
+
+  // automatický refresh itemů, když se změní filtr
+  useEffect(() => {
+    if (isFilterActive) {
+      setFilteredItems(shopList.items.filter(item => item.state === 'unchecked'));
+    } else {
+      setFilteredItems(shopList.items);
+    }
+  }, [isFilterActive, shopList.items]);
 
   return (
     <View style={styles.modalContent}>
@@ -26,16 +42,27 @@ export default function ShopListDetail({ shopList }) {
       </Pressable>
 
       <ScrollView style={styles.itemsContainer}>
-        {shopList.items && shopList.items.length > 0 ? (
-          shopList.items.map((item, index) => (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Položky:</Text>
+          <Pressable onPress={handleFilterPress} style={styles.iconButton}>
+            <Ionicons
+              name={isFilterActive ? 'filter' : 'filter-outline'}
+              size={22}
+              color={isFilterActive ? '#00bfff' : '#fff'}
+            />
+          </Pressable>
+        </View>
+
+        {filteredItems && filteredItems.length > 0 ? (
+          filteredItems.map((item, index) => (
             <Item key={item._id || index} item={item} shopListId={shopList._id} />
           ))
         ) : (
-          <Text>Žádné položky</Text>
+          <Text style={styles.itemText}>Žádné položky</Text>
         )}
-
       </ScrollView>
-      <ListOfMembers shopListId={shopList._id}/>
+
+      <ListOfMembers shopListId={shopList._id} />
 
       {/* Modal pro přidání nové položky */}
       <Modal
@@ -51,6 +78,7 @@ export default function ShopListDetail({ shopList }) {
         </View>
       </Modal>
 
+      {/* Modal pro přejmenování seznamu */}
       <Modal
         visible={isUpdateNameOpen}
         transparent={true}
@@ -59,7 +87,7 @@ export default function ShopListDetail({ shopList }) {
       >
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>
-            <UpdateShopListNameForm shopList={shopList} onClose={() => setUpdateNameOpen(false)}/>
+            <UpdateShopListNameForm shopList={shopList} onClose={() => setUpdateNameOpen(false)} />
           </View>
         </View>
       </Modal>
@@ -98,7 +126,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   iconButton: {
-    padding: 4,
+    padding: 6,
   },
   addButton: {
     backgroundColor: '#222',
@@ -115,6 +143,17 @@ const styles = StyleSheet.create({
   },
   itemsContainer: {
     flexGrow: 0,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
   itemText: {
     color: '#fff',

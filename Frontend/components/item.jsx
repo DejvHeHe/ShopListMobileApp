@@ -15,6 +15,7 @@ export default function Item({ item, shopListId }) {
       setChecked(true);
       try {
         await uncheckItem(data);
+        await refresh()
        
       } catch (err) {
         console.error("Chyba při update itemu:", err);
