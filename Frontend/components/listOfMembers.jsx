@@ -49,7 +49,7 @@ export default function ListOfMembers({ shopListId }) {
               <View key={index} style={styles.memberBox}>
                 <Text style={styles.memberText}>{member.name}: {member.email}</Text>
                 
-                {member._id.toString() !== userId && (
+                {member._id.toString() === userId && (
                   <Pressable 
                     style={styles.iconButton} 
                     onPress={() => {
