@@ -1,12 +1,24 @@
-import { Pressable, StyleSheet, View, Modal } from 'react-native';
+import { Pressable, StyleSheet, View, Modal, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CreateFrom from './createForm';
 
 export default function Footer() {
   const navigation = useNavigation();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Funkce pro smazání tokenu
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      Alert.alert('Odhlášeno', 'Token byl smazán.');
+      navigation.navigate('Login'); // případně přesměruj na login screen
+    } catch (err) {
+      console.error('Chyba při mazání tokenu:', err);
+    }
+  };
 
   return (
     <>
@@ -22,6 +34,10 @@ export default function Footer() {
         <Pressable onPress={() => navigation.navigate('Archive')}>
           <Ionicons name="archive-outline" size={28} color="black" />
         </Pressable>
+
+        <Pressable onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={28} color="black" />
+        </Pressable>
       </View>
 
       {/* Modal Wrapper */}
@@ -32,7 +48,7 @@ export default function Footer() {
         onRequestClose={() => setIsOpen(false)}
       >
         <View style={styles.modalBackground}>
-          <CreateFrom onClose={() => setIsOpen(false)}/>
+          <CreateFrom onClose={() => setIsOpen(false)} />
         </View>
       </Modal>
     </>
@@ -53,6 +69,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)', // dim background
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 });

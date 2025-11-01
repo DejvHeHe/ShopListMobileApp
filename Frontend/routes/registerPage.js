@@ -1,4 +1,3 @@
-//RegisterPage
 import { Pressable, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
@@ -9,6 +8,7 @@ import Toast from 'react-native-toast-message';
 export default function RegisterPage() {
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const navigation = useNavigation();
+  const [name, setName] = useState(""); // 🆕
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState(""); 
@@ -26,27 +26,21 @@ export default function RegisterPage() {
     }
 
     setRegisterFailed(false);
-    const data = { email, password };
-    const registerResult=await register(data);
-    console.log(registerResult)
-    if(registerResult.error)
-    {     
-        Toast.show({
+    const data = { email, password,name }; // 🆕 Přidáno name
+    const registerResult = await register(data);
+    console.log(registerResult);
+
+    if(registerResult.error) {     
+      Toast.show({
         type:"error",
         text1:registerResult.message,
         position:"top",    
-        })      
-      
-
-    }
-      
-    else{
-      const loginResult=await login(data);
+      });
+    } else {
+      const loginResult = await login({ email, password });
       navigation.navigate('Dashboard');
-
     }
-    
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,6 +49,14 @@ export default function RegisterPage() {
       </View>
 
       <View style={styles.contentContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Name" // 🆕
+          autoCapitalize="words"
+          value={name}
+          onChange={e => setName(e.nativeEvent.text)}
+        />
+
         <TextInput
           style={styles.input}
           placeholder="E-mail"
@@ -109,7 +111,7 @@ export default function RegisterPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5', // světle šedé pozadí
+    backgroundColor: '#F5F5F5',
     alignItems: "center",
     justifyContent: "flex-start",
     paddingTop: 50,
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000', // černý text
+    color: '#000',
     textAlign: 'center',
   },
   contentContainer: {
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#000', // černý rámeček
+    borderColor: '#000',
     borderRadius: 12,
     padding: 20,
     gap: 15,
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FF0000', // červený okraj při chybě
+    borderColor: '#FF0000',
     borderRadius: 12,
     width: '100%',
     paddingHorizontal: 10,
@@ -178,14 +180,14 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   buttonPrimary: {
-    backgroundColor: '#000', // černé tlačítko
+    backgroundColor: '#000',
     paddingVertical: 12,
     borderRadius: 10,
     marginTop: 15,
     width: '100%',
   },
   buttonText: {
-    color: '#fff', // bílé písmo na černém tlačítku
+    color: '#fff',
     fontSize: 16,
     textAlign: 'center',
     fontWeight: '600',

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { list } from "../shopListProvider"; // předpokládám, že tato funkce vrací Promise s daty
+import { list } from "../shopListProvider"; 
 
 
 const ShopListContext = createContext();

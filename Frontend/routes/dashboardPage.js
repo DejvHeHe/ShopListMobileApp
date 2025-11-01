@@ -16,6 +16,7 @@ export default function DashboardPage() {
         
 
         <Text style={styles.subHeader}>Sdílené ShopListy</Text>
+        <Dashboard listFunction="listShared"/>
 
         
       </View>
@@ -28,13 +29,11 @@ export default function DashboardPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', // bílé pozadí celé stránky
+    backgroundColor: '#F5F5F5', // světle šedé pozadí pro lepší kontrast
     justifyContent: 'space-between',
   },
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
   },
   header: {
@@ -43,6 +42,7 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 25,
     textTransform: 'uppercase',
+    textAlign: 'center',
   },
   subHeader: {
     fontSize: 22,
@@ -50,6 +50,11 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 40,
     marginBottom: 15,
+    textAlign: 'left',
+  },
+  dashboardContainer: {
+    width: '100%',
+    marginBottom: 30,
   },
   button: {
     width: '85%',
@@ -57,6 +62,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 10,
     marginBottom: 10,
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   buttonText: {
     color: '#fff',

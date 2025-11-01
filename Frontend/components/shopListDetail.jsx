@@ -5,19 +5,35 @@ import AddItemForm from './addItemForm';
 import Item from './item';
 import UpdateShopListNameForm from './updateShopListNameForm';
 import ListOfMembers from './listOfMembers';
+import ShareForm from './shareForm';
+import { useUserId } from '../functions/contexts/userIdContext';
 
 export default function ShopListDetail({ shopList }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
+  const [isShareOpen, setShareOpen] = useState(false);
   const [isFilterActive, setIsFilterActive] = useState(false);
   const [filteredItems, setFilteredItems] = useState(shopList.items || []);
+  const { userId, getUserId } = useUserId();
+  const [ready, setReady] = useState(false);
 
-  // refreshuje seznam podle stavu filtru
+  // načtení userId
+  useEffect(() => {
+    const fetchUserId = async () => {
+      await getUserId();
+      setReady(true);
+    };
+    fetchUserId();
+  }, []);
+
+  const openShareForm = () => {
+    setShareOpen(true);
+  };
+
   const handleFilterPress = () => {
     setIsFilterActive(prev => !prev);
   };
 
-  // automatický refresh itemů, když se změní filtr
   useEffect(() => {
     if (isFilterActive) {
       setFilteredItems(shopList.items.filter(item => item.state === 'unchecked'));
@@ -26,20 +42,37 @@ export default function ShopListDetail({ shopList }) {
     }
   }, [isFilterActive, shopList.items]);
 
+  const isOwner = ready && shopList.ownerId.toString() === userId;
+
   return (
     <View style={styles.modalContent}>
       <View style={styles.handle} />
 
       <View style={styles.titleRow}>
         <Text style={styles.modalTitle}>Detail seznamu: {shopList.name}</Text>
-        <Pressable style={styles.iconButton} onPress={() => setUpdateNameOpen(true)}>
-          <Ionicons name="pencil" size={24} color="#fff" />
+        <Pressable
+          style={styles.iconButton}
+          onPress={() => setUpdateNameOpen(true)}
+          disabled={!isOwner}
+        >
+          <Ionicons name="pencil" size={24} color={isOwner ? '#fff' : '#888'} />
         </Pressable>
       </View>
 
-      <Pressable style={styles.addButton} onPress={() => setIsAddOpen(true)}>
-        <Text style={styles.addButtonText}>+ Přidat položku</Text>
-      </Pressable>
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.primaryButton} onPress={() => setIsAddOpen(true)}>
+          <Text style={styles.primaryButtonText}>+ Přidat položku</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.secondaryButton}
+          onPress={openShareForm}
+          disabled={!isOwner}
+        >
+          <Ionicons name="share-social-outline" size={18} color={isOwner ? '#fff' : '#888'} />
+          <Text style={styles.secondaryButtonText}>Nadílet seznam</Text>
+        </Pressable>
+      </View>
 
       <ScrollView style={styles.itemsContainer}>
         <View style={styles.sectionHeader}>
@@ -65,12 +98,7 @@ export default function ShopListDetail({ shopList }) {
       <ListOfMembers shopListId={shopList._id} />
 
       {/* Modal pro přidání nové položky */}
-      <Modal
-        visible={isAddOpen}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setIsAddOpen(false)}
-      >
+      <Modal visible={isAddOpen} transparent animationType="slide" onRequestClose={() => setIsAddOpen(false)}>
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>
             <AddItemForm shopList={shopList} onClose={() => setIsAddOpen(false)} />
@@ -79,15 +107,19 @@ export default function ShopListDetail({ shopList }) {
       </Modal>
 
       {/* Modal pro přejmenování seznamu */}
-      <Modal
-        visible={isUpdateNameOpen}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setUpdateNameOpen(false)}
-      >
+      <Modal visible={isUpdateNameOpen} transparent animationType="slide" onRequestClose={() => setUpdateNameOpen(false)}>
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>
             <UpdateShopListNameForm shopList={shopList} onClose={() => setUpdateNameOpen(false)} />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal pro sdílení seznamu */}
+      <Modal visible={isShareOpen} transparent animationType="slide" onRequestClose={() => setShareOpen(false)}>
+        <View style={styles.addItemModalBackground}>
+          <View style={styles.addItemModalContent}>
+            <ShareForm shopListId={shopList._id} onClose={() => setShareOpen(false)} />
           </View>
         </View>
       </Modal>
@@ -106,70 +138,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 30,
   },
-  handle: {
-    width: 40,
-    height: 5,
-    backgroundColor: '#888',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginBottom: 12,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  modalTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  iconButton: {
-    padding: 6,
-  },
-  addButton: {
-    backgroundColor: '#222',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    alignSelf: 'flex-start',
-    marginBottom: 15,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  itemsContainer: {
-    flexGrow: 0,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  itemText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  addItemModalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
-  },
-  addItemModalContent: {
-    backgroundColor: '#000',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: '50%',
-  },
+  handle: { width: 40, height: 5, backgroundColor: '#888', borderRadius: 3, alignSelf: 'center', marginBottom: 12 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  modalTitle: { color: '#fff', fontSize: 20, fontWeight: '700' },
+  iconButton: { padding: 6 },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
+  primaryButton: { backgroundColor: '#222', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 10 },
+  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  secondaryButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#333', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
+  secondaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '500', marginLeft: 6 },
+  itemsContainer: { flexGrow: 0 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  sectionTitle: { color: '#fff', fontSize: 18, fontWeight: '600' },
+  itemText: { color: '#fff', fontSize: 16, marginBottom: 8 },
+  addItemModalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  addItemModalContent: { backgroundColor: '#000', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '50%' },
 });
