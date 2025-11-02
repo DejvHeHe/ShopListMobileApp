@@ -3,12 +3,16 @@ import React, { useState } from 'react';
 import { addItem } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
 import { useShopList } from '../functions/contexts/shopListContext';
+import { useListFunction } from '../functions/contexts/listFunctionContext';
+import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 
 
 export default function AddeItemForm({ shopList,onClose }) {
   const [name, setName] = useState("");
   const [count, setCount] = useState(1);
   const { shopLists, refresh } = useShopList();
+  const { sharedShopLists, refreshShared } = useSharedShopList();
+  const {listFunction,setListFunction}=useListFunction()
 
   const handleAddItem = async () => {
     try {
@@ -24,7 +28,16 @@ export default function AddeItemForm({ shopList,onClose }) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán' });
-      await refresh()
+      if(listFunction==="list")
+      {
+        await refresh()
+
+      }
+      else if(listFunction==="listShared")
+      {
+        await refreshShared()
+      }
+      
       onClose();
     } catch (error) {
       console.log("Create form error:", error);

@@ -6,7 +6,7 @@ export async function create(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/create", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export async function list() {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/list", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/list", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export async function listShared() {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/listShared", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/listShared", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export async function addItem(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/addItem", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/addItem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,7 +114,7 @@ export async function uncheckItem(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/uncheckItem", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/uncheckItem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +141,7 @@ export async function removeItem(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/removeItem", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/removeItem", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -168,7 +168,7 @@ export async function update(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/update", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/update", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -197,7 +197,7 @@ export async function viewSharedTo(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/viewSharedTo", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/viewSharedTo", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -231,7 +231,7 @@ export async function share(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/share", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/share", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -258,7 +258,7 @@ export async function removeFromShare(data) {
     const token = await AsyncStorage.getItem("token");
     if (!token) throw new Error("No token found");
 
-    const response = await fetch("http://:5000/shoplist/removeFromShare", {
+    const response = await fetch("http://192.168.0.45:5000/shoplist/removeFromShare", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

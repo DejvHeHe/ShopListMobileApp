@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, ScrollView, Modal } from 'react-native';
+import { Pressable, StyleSheet, Text, View, ScrollView, Modal } from 'react-native'; 
 import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AddItemForm from './addItemForm';
@@ -7,8 +7,9 @@ import UpdateShopListNameForm from './updateShopListNameForm';
 import ListOfMembers from './listOfMembers';
 import ShareForm from './shareForm';
 import { useUserId } from '../functions/contexts/userIdContext';
+import { useListFunction } from '../functions/contexts/listFunctionContext'; // <-- import
 
-export default function ShopListDetail({ shopList }) {
+export default function ShopListDetail({ shopList, onClose, listFunctionTobe }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
   const [isShareOpen, setShareOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function ShopListDetail({ shopList }) {
   const [filteredItems, setFilteredItems] = useState(shopList.items || []);
   const { userId, getUserId } = useUserId();
   const [ready, setReady] = useState(false);
+  const { listFunction, setListFunction } = useListFunction(); // <-- hook
 
   // načtení userId
   useEffect(() => {
@@ -25,6 +27,13 @@ export default function ShopListDetail({ shopList }) {
     };
     fetchUserId();
   }, []);
+
+  // Nastavení listFunction podle listFunctionTobe
+  useEffect(() => {
+    if (listFunctionTobe && listFunctionTobe !== listFunction) {
+      setListFunction(listFunctionTobe);
+    }
+  }, [listFunctionTobe]);
 
   const openShareForm = () => {
     setShareOpen(true);
@@ -40,7 +49,8 @@ export default function ShopListDetail({ shopList }) {
     } else {
       setFilteredItems(shopList.items);
     }
-  }, [isFilterActive, shopList.items]);
+  }, [isFilterActive, shopList.items]); 
+
 
   const isOwner = ready && shopList.ownerId.toString() === userId;
 
@@ -95,9 +105,9 @@ export default function ShopListDetail({ shopList }) {
         )}
       </ScrollView>
 
-      <ListOfMembers shopListId={shopList._id} />
+      <ListOfMembers shopListId={shopList._id} onClose={onClose} ownerId={shopList.ownerId} />
 
-      {/* Modal pro přidání nové položky */}
+      {/* Modaly */}
       <Modal visible={isAddOpen} transparent animationType="slide" onRequestClose={() => setIsAddOpen(false)}>
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>
@@ -106,7 +116,6 @@ export default function ShopListDetail({ shopList }) {
         </View>
       </Modal>
 
-      {/* Modal pro přejmenování seznamu */}
       <Modal visible={isUpdateNameOpen} transparent animationType="slide" onRequestClose={() => setUpdateNameOpen(false)}>
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>
@@ -115,7 +124,6 @@ export default function ShopListDetail({ shopList }) {
         </View>
       </Modal>
 
-      {/* Modal pro sdílení seznamu */}
       <Modal visible={isShareOpen} transparent animationType="slide" onRequestClose={() => setShareOpen(false)}>
         <View style={styles.addItemModalBackground}>
           <View style={styles.addItemModalContent}>

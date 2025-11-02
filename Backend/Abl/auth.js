@@ -32,6 +32,13 @@ class Auth {
             };
 
             const result = await dao.register(userDoc);
+            if(result.error)
+            {
+                throw{
+                    code:result.code,
+                    message:result.message
+                }
+            }
             return result;
 
         } catch (err) {

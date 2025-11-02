@@ -49,6 +49,7 @@ async function register(userDoc) {
         success: false,
         error: "Email already registered.",
         code: "EmailAlreadyRegistered",
+        message:"Email already registered.",
       };
     }
 

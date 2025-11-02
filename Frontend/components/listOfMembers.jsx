@@ -1,24 +1,17 @@
 import { Pressable, StyleSheet, Text, View, ScrollView, Modal } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { viewSharedTo, removeFromShare } from '../functions/shopListProvider';
+import { removeFromShare } from '../functions/shopListProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserId } from '../functions/contexts/userIdContext';
+import { useMemberList } from '../functions/contexts/memberListContext';
+import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 
-export default function ListOfMembers({ shopListId }) {
-  const [listOfMembers, setListOfMembers] = useState([]);
+export default function ListOfMembers({ shopListId, onClose, ownerId }) {
+  const { memberList, refreshMemberList } = useMemberList();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const { userId } = useUserId();
-
-  const getListOfMembers = async () => {
-    try {
-      const data = { shopListId };
-      const list = await viewSharedTo(data);
-      setListOfMembers(list);
-    } catch (err) {
-      console.error("Chyba při načítání členů:", err);
-    }
-  };
+  const { sharedShopLists, refreshShared } = useSharedShopList();
 
   const handleUnshare = async () => {
     try {
@@ -26,7 +19,13 @@ export default function ListOfMembers({ shopListId }) {
         const data = { shopListId, removeId: selectedMember._id };
         await removeFromShare(data);
         setIsOpen(false);
-        getListOfMembers(); 
+        await refreshMemberList(shopListId);
+
+        if (ownerId.toString() !== userId) {
+
+          onClose();
+          await refreshShared();
+        }
       }
     } catch (err) {
       console.error("Chyba při mazání člena:", err);
@@ -35,7 +34,7 @@ export default function ListOfMembers({ shopListId }) {
 
   useEffect(() => {
     if (shopListId) {
-      getListOfMembers();
+      refreshMemberList(shopListId);
     }
   }, [shopListId]);
 
@@ -43,15 +42,18 @@ export default function ListOfMembers({ shopListId }) {
     <>
       <View style={styles.container}>
         <Text style={styles.title}>Sdíleno s:</Text>
-        {listOfMembers && listOfMembers.length > 0 ? (
+        {memberList && memberList.length > 0 ? (
           <ScrollView style={styles.memberList}>
-            {listOfMembers.map((member, index) => (
+            {memberList.map((member, index) => (
               <View key={index} style={styles.memberBox}>
                 <Text style={styles.memberText}>{member.name}: {member.email}</Text>
-                
-                {member._id.toString() === userId && (
-                  <Pressable 
-                    style={styles.iconButton} 
+
+                {(
+                  userId === member._id.toString() ||
+                  (userId === ownerId.toString() && member._id.toString() !== userId)
+                ) && (
+                  <Pressable
+                    style={styles.iconButton}
                     onPress={() => {
                       setSelectedMember(member);
                       setIsOpen(true);

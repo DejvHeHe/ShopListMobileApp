@@ -1,23 +1,23 @@
 import { ScrollView, Text, StyleSheet, View } from 'react-native';
 import React, { useEffect } from 'react';
 import ShopList from './shopList';
-import { useShopList } from '../functions/contexts/shopListContext';
+import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 
-export default function Dashboard() {
-  const { shopLists, refresh } = useShopList();
+export default function DashboardShared() {
+  const { sharedShopLists, refreshShared } = useSharedShopList();
 
   useEffect(() => {
-      refresh();
-    }, []); 
+    refreshShared();
+  }, []); 
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {(!shopLists || shopLists.length === 0) ? (
-        <Text style={styles.emptyText}>Žádné vaše seznamy</Text>
+      {(!sharedShopLists || sharedShopLists.length === 0) ? (
+        <Text style={styles.emptyText}>Žádné sdílené seznamy</Text>
       ) : (
         <View style={styles.gridContainer}>
-          {shopLists.map(list => (
-            <ShopList key={list._id} shopList={list} listFunctionTobe="list" />
+          {sharedShopLists.map(list => (
+            <ShopList key={list._id} shopList={list} listFunctionTobe="listShared"/>
           ))}
         </View>
       )}

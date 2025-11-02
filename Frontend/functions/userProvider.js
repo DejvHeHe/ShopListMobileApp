@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export async function register(data) {
   try {
-    const response = await fetch("http://:5000/auth/register", {
+    const response = await fetch("http://192.168.0.45:5000/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -21,7 +21,7 @@ export async function register(data) {
 
 export async function login(data) {
   try {
-    const response = await fetch("http://:5000/auth/login", {
+    const response = await fetch("http://192.168.0.45:5000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -35,9 +35,9 @@ export async function login(data) {
     }
 
     // Ulož token, pokud existuje
-    if (typeof result === "string") {
-      await AsyncStorage.setItem("token", result);
-      return { error: false, token: result};
+    if (typeof result.token === "string") {
+      await AsyncStorage.setItem("token", result.token);
+      return { error: false, token: result.token};
     } else {
       console.error("Login result.token is not a string:", result);
       return { error: true, message: "Token is missing" };

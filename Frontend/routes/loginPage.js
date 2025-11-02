@@ -75,7 +75,7 @@ export default function LoginPage() {
 
       <View style={styles.footer}>
         <Pressable style={styles.buttonSecondary} onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.buttonText}>Create account</Text>
+          <Text style={styles.secondaryButtonText}>Create account</Text>
         </Pressable>
       </View>
       
@@ -152,7 +152,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   buttonText: {
-    color: '#000', // černý text (na bílém i černém tlačítku se dá upravit dynamicky)
+    color: '#ffff', // černý text (na bílém i černém tlačítku se dá upravit dynamicky)
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: "600",
+  },
+  secondaryButtonText: {
+    color: '#0000', // černý text (na bílém i černém tlačítku se dá upravit dynamicky)
     fontSize: 16,
     textAlign: 'center',
     fontWeight: "600",

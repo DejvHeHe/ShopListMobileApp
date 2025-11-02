@@ -22,21 +22,22 @@ export default function Footer() {
 
   return (
     <>
-      <View style={styles.footer}>
-        <Pressable onPress={() => navigation.navigate('Dashboard')}>
-          <Ionicons name="home-outline" size={28} color="black" />
-        </Pressable>
-
-        <Pressable onPress={() => setIsOpen(true)}>
-          <Ionicons name="add-circle-outline" size={36} color="black" />
-        </Pressable>
+      <View style={styles.footer}>           
 
         <Pressable onPress={() => navigation.navigate('Archive')}>
           <Ionicons name="archive-outline" size={28} color="black" />
         </Pressable>
 
+        <Pressable onPress={() => navigation.navigate('Dashboard')}>
+          <Ionicons name="home-outline" size={28} color="black" />
+        </Pressable>
+        
+        <Pressable onPress={() => setIsOpen(true)}>
+          <Ionicons name="add-circle-outline" size={36} color="black" />
+        </Pressable>
+
         <Pressable onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={28} color="black" />
+          <Ionicons name="log-out-outline" size={28} color="red" />
         </Pressable>
       </View>
 

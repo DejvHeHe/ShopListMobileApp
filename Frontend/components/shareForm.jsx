@@ -2,15 +2,16 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import { share } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
-import { useShopList } from '../functions/contexts/shopListContext';
+import { useMemberList } from '../functions/contexts/memberListContext'; // import contextu
 
-export default function ShareForm({ shopListId,onClose}) {
+export default function ShareForm({ shopListId, onClose }) {
   const [email, setEmail] = useState("");
-  const { shopLists, refresh } = useShopList();
+  
+  const { refreshMemberList } = useMemberList(); // získání funkce pro refresh členů
 
   const handleCreate = async () => {
     try {
-      const data = { shopListId,email };
+      const data = { shopListId, email };
       const result = await share(data);
 
       if (result.error) {
@@ -19,7 +20,10 @@ export default function ShareForm({ shopListId,onClose}) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl nasdílen' });
-      await refresh()
+
+      // Refresh seznamu položek a členů
+      
+      await refreshMemberList(shopListId); // refresh memberList
       onClose();
     } catch (error) {
       console.log("Share form error:", error);
@@ -52,9 +56,6 @@ export default function ShareForm({ shopListId,onClose}) {
     </View>
   );
 }
-
-
-
 
 const styles = StyleSheet.create({
   container: {

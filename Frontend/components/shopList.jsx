@@ -4,7 +4,7 @@ import Modal from 'react-native-modal';
 import ShopListDetail from './shopListDetail';
 
 
-export default function ShopList({ shopList }) {
+export default function ShopList({ shopList,listFunctionTobe}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
@@ -33,7 +33,7 @@ export default function ShopList({ shopList }) {
         style={styles.modalContainer}
         propagateSwipe={true}
       >
-        <ShopListDetail shopList={shopList} />
+        <ShopListDetail shopList={shopList} onClose={()=>{setIsOpen(false)}} listFunctionTobe={listFunctionTobe} />
       </Modal>
     </>
   );
