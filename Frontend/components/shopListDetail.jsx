@@ -7,9 +7,9 @@ import UpdateShopListNameForm from './updateShopListNameForm';
 import ListOfMembers from './listOfMembers';
 import ShareForm from './shareForm';
 import { useUserId } from '../functions/contexts/userIdContext';
-import { useListFunction } from '../functions/contexts/listFunctionContext'; // <-- import
 
-export default function ShopListDetail({ shopList, onClose, listFunctionTobe }) {
+
+export default function ShopListDetail({ shopList, onClose,  }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
   const [isShareOpen, setShareOpen] = useState(false);
@@ -17,7 +17,7 @@ export default function ShopListDetail({ shopList, onClose, listFunctionTobe }) 
   const [filteredItems, setFilteredItems] = useState(shopList.items || []);
   const { userId, getUserId } = useUserId();
   const [ready, setReady] = useState(false);
-  const { listFunction, setListFunction } = useListFunction(); // <-- hook
+  
 
   // načtení userId
   useEffect(() => {
@@ -28,12 +28,7 @@ export default function ShopListDetail({ shopList, onClose, listFunctionTobe }) 
     fetchUserId();
   }, []);
 
-  // Nastavení listFunction podle listFunctionTobe
-  useEffect(() => {
-    if (listFunctionTobe && listFunctionTobe !== listFunction) {
-      setListFunction(listFunctionTobe);
-    }
-  }, [listFunctionTobe]);
+  
 
   const openShareForm = () => {
     setShareOpen(true);

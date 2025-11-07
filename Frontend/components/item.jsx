@@ -12,8 +12,8 @@ export default function Item({ item, shopListId }) {
   const [modalVisible, setModalVisible] = useState(false);
   const data = { shopListId, itemId: item._id };
   const { refresh } = useShopList();
-  const {listFunction,setListFunction}=useListFunction()
-  const { sharedShopLists, refreshShared } = useSharedShopList();
+  const {listFunction}=useListFunction()
+  const { refreshShared } = useSharedShopList();
 
   const handleChange = async () => {
     if (!checked) {
