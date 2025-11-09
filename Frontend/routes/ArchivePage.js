@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView } from 'react-native'; 
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Footer from '../components/footer';
+import DashboardShared from '../components/dashboardArchived';
 
 export default function ArchivePage() {
   const navigation = useNavigation();
@@ -9,9 +10,10 @@ export default function ArchivePage() {
   return (
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.container}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Text style={styles.header}>Archivované ShopListy</Text>
-        </View>
+          <DashboardShared />
+        </ScrollView>
 
         <View style={styles.footerWrapper}>
           <Footer />
@@ -30,47 +32,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 60,
   },
   header: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#000',
-    marginBottom: 30,
+    marginBottom: 20,
     textTransform: 'uppercase',
+    textAlign: 'center',
   },
   footerWrapper: {
-    paddingBottom: 25, // větší mezera od spodní části obrazovky
-    marginTop: 10,      // posune footer trochu nahoru
-  },
-  button: {
-    width: '85%',
-    backgroundColor: '#000',
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonSecondary: {
-    width: '85%',
-    borderColor: '#000',
-    borderWidth: 2,
-    paddingVertical: 14,
-    borderRadius: 10,
-  },
-  buttonTextSecondary: {
-    color: '#000',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
   },
 });

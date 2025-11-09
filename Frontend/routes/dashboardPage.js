@@ -1,10 +1,27 @@
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Footer from '../components/footer';
 import Dashboard from '../components/dashboard';
 import DashboardShared from '../components/dashboardShared';
+import { useUserId } from '../functions/contexts/userIdContext';
 
 export default function DashboardPage() {
+  const { getUserId } = useUserId();
+  
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        await getUserId();        
+        
+      } catch (err) {
+        console.log('❌ Chyba při načítání userId:', err);
+      }
+    };
+
+    fetchUserId();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeContainer}>
       <View style={styles.container}>
@@ -54,7 +71,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   footerWrapper: {
-    paddingBottom: 25, 
-    marginTop: 10,      
+    paddingBottom: 25,
+    marginTop: 10,
   },
 });

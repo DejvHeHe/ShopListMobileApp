@@ -7,12 +7,12 @@ import { useShopList } from '../functions/contexts/shopListContext';
 import { useListFunction } from '../functions/contexts/listFunctionContext';
 import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 
-export default function Item({ item, shopListId }) {
+export default function Item({ item, shopListId, isArchived }) {
   const [checked, setChecked] = useState(item.state === 'checked');
   const [modalVisible, setModalVisible] = useState(false);
   const data = { shopListId, itemId: item._id };
   const { refresh } = useShopList();
-  const {listFunction}=useListFunction()
+  const { listFunction } = useListFunction();
   const { refreshShared } = useSharedShopList();
 
   const handleChange = async () => {
@@ -20,18 +20,11 @@ export default function Item({ item, shopListId }) {
       setChecked(true);
       try {
         await uncheckItem(data);
-        console.log(listFunction)
-        if(listFunction==="list")
-          {
-            
-            await refresh()
-
-          }
-        else if(listFunction==="listShared")
-          {
-            await refreshShared()
-          }
-       
+        if (listFunction === "list") {
+          await refresh();
+        } else if (listFunction === "listShared") {
+          await refreshShared();
+        }
       } catch (err) {
         console.error("Chyba při update itemu:", err);
       }
@@ -41,17 +34,11 @@ export default function Item({ item, shopListId }) {
   const handleRemove = async () => {
     try {
       await removeItem(data);
-      if(listFunction==="list")
-          {
-            
-            await refresh()
-
-          }
-        else if(listFunction==="listShared")
-          {
-            await refreshShared()
-          }
-      console.log('Item odstraněn');
+      if (listFunction === "list") {
+        await refresh();
+      } else if (listFunction === "listShared") {
+        await refreshShared();
+      }
       setModalVisible(false);
     } catch (err) {
       console.error('Chyba při odstranění itemu:', err);
@@ -65,15 +52,17 @@ export default function Item({ item, shopListId }) {
           value={checked}
           onValueChange={handleChange}
           style={styles.checkbox}
-          color={checked ? '#000' : undefined} 
-          disabled={checked} 
+          color={checked ? '#000' : undefined}
+          disabled={checked || isArchived} 
         />
-        <Text style={styles.text}>
-          {item.name} ({item.count})
-        </Text>
-        <Pressable onPress={() => setModalVisible(true)} style={styles.removeButton}>
-          <Ionicons name="trash" size={24} color="red" />
-        </Pressable>
+        <Text style={styles.text}>{item.name} ({item.count})</Text>
+
+        {/* Odstranění položky – jen pokud seznam není archivovaný */}
+        {!isArchived && (
+          <Pressable onPress={() => setModalVisible(true)} style={styles.removeButton}>
+            <Ionicons name="trash" size={24} color="red" />
+          </Pressable>
+        )}
       </View>
 
       {/* Modal pro potvrzení odstranění */}

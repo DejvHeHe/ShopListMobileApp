@@ -8,8 +8,7 @@ import ListOfMembers from './listOfMembers';
 import ShareForm from './shareForm';
 import { useUserId } from '../functions/contexts/userIdContext';
 
-
-export default function ShopListDetail({ shopList, onClose,  }) {
+export default function ShopListDetail({ shopList, onClose }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
   const [isShareOpen, setShareOpen] = useState(false);
@@ -17,9 +16,8 @@ export default function ShopListDetail({ shopList, onClose,  }) {
   const [filteredItems, setFilteredItems] = useState(shopList.items || []);
   const { userId, getUserId } = useUserId();
   const [ready, setReady] = useState(false);
-  
 
-  // načtení userId
+  // Načtení userId
   useEffect(() => {
     const fetchUserId = async () => {
       await getUserId();
@@ -28,15 +26,8 @@ export default function ShopListDetail({ shopList, onClose,  }) {
     fetchUserId();
   }, []);
 
-  
-
-  const openShareForm = () => {
-    setShareOpen(true);
-  };
-
-  const handleFilterPress = () => {
-    setIsFilterActive(prev => !prev);
-  };
+  const openShareForm = () => setShareOpen(true);
+  const handleFilterPress = () => setIsFilterActive(prev => !prev);
 
   useEffect(() => {
     if (isFilterActive) {
@@ -46,39 +37,44 @@ export default function ShopListDetail({ shopList, onClose,  }) {
     }
   }, [isFilterActive, shopList.items]); 
 
-
   const isOwner = ready && shopList.ownerId.toString() === userId;
+  const isArchived = shopList.isArchived === true;
 
   return (
     <View style={styles.modalContent}>
       <View style={styles.handle} />
 
+      {/* Header */}
       <View style={styles.titleRow}>
         <Text style={styles.modalTitle}>Detail seznamu: {shopList.name}</Text>
-        <Pressable
-          style={styles.iconButton}
-          onPress={() => setUpdateNameOpen(true)}
-          disabled={!isOwner}
-        >
-          <Ionicons name="pencil" size={24} color={isOwner ? '#fff' : '#888'} />
-        </Pressable>
+
+        {/* Editace názvu – jen pokud je owner a seznam není archivovaný */}
+        {isOwner && !isArchived && (
+          <Pressable style={styles.iconButton} onPress={() => setUpdateNameOpen(true)}>
+            <Ionicons name="pencil" size={24} color="#fff" />
+          </Pressable>
+        )}
       </View>
 
+      {/* Hlavní tlačítka */}
       <View style={styles.buttonRow}>
-        <Pressable style={styles.primaryButton} onPress={() => setIsAddOpen(true)}>
-          <Text style={styles.primaryButtonText}>+ Přidat položku</Text>
-        </Pressable>
+        {/* Přidání položky – jen pokud seznam není archivovaný */}
+        {!isArchived && (
+          <Pressable style={styles.primaryButton} onPress={() => setIsAddOpen(true)}>
+            <Text style={styles.primaryButtonText}>+ Přidat položku</Text>
+          </Pressable>
+        )}
 
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={openShareForm}
-          disabled={!isOwner}
-        >
-          <Ionicons name="share-social-outline" size={18} color={isOwner ? '#fff' : '#888'} />
-          <Text style={styles.secondaryButtonText}>Nadílet seznam</Text>
-        </Pressable>
+        {/* Sdílení seznamu – jen pokud je owner a seznam není archivovaný */}
+        {isOwner && !isArchived && (
+          <Pressable style={styles.secondaryButton} onPress={openShareForm}>
+            <Ionicons name="share-social-outline" size={18} color="#fff" />
+            <Text style={styles.secondaryButtonText}>Nadílet seznam</Text>
+          </Pressable>
+        )}
       </View>
 
+      {/* Seznam položek */}
       <ScrollView style={styles.itemsContainer}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Položky:</Text>
@@ -93,13 +89,14 @@ export default function ShopListDetail({ shopList, onClose,  }) {
 
         {filteredItems && filteredItems.length > 0 ? (
           filteredItems.map((item, index) => (
-            <Item key={item._id || index} item={item} shopListId={shopList._id} />
+            <Item key={item._id || index} item={item} shopListId={shopList._id} isArchived={shopList.isArchived}/>
           ))
         ) : (
           <Text style={styles.itemText}>Žádné položky</Text>
         )}
       </ScrollView>
 
+      {/* Seznam členů */}
       <ListOfMembers shopListId={shopList._id} onClose={onClose} ownerId={shopList.ownerId} />
 
       {/* Modaly */}

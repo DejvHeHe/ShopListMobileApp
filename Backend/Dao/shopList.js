@@ -64,9 +64,8 @@ async function listArchived(ownerId)
         const result=await client
         .db("ShopListMobileApp")
         .collection("shopList")
-        .find({ownerId:ownerId,isArchived:true})
+        .find({ownerId:new ObjectId(ownerId),isArchived:true})
         .toArray();
-
         return result;
 
     }
