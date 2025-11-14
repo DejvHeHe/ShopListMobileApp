@@ -1,13 +1,17 @@
 const viewSharedToSchema = {
   type: "object",
   properties: {
-    shopListId: { type: "string" },
-    userId:{ type: "string" },
-
-
+    shopListId: { 
+      type: "string",
+      maxLength: 30
+    },
+    userId: { 
+      type: "string",
+      maxLength: 30
+    }
   },
-  required: ["shopListId","userId"],
+  required: ["shopListId", "userId"],
   additionalProperties: false,
 };
 
-module.exports=viewSharedToSchema;
+module.exports = viewSharedToSchema;

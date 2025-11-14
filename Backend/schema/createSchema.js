@@ -1,11 +1,17 @@
 const createSchema = {
   type: "object",
   properties: {
-    name: { type: "string" },
-    userId:{ type: "string" }
+    name: { 
+      type: "string",
+      maxLength: 30
+    },
+    userId: { 
+      type: "string",
+      maxLength: 30
+    }
   },
-  required: ["name","userId"],
+  required: ["name", "userId"],
   additionalProperties: false,
 };
 
-module.exports=createSchema;
+module.exports = createSchema;

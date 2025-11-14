@@ -293,7 +293,7 @@ async function listShared(userId) {
     const result = await client
       .db("ShopListMobileApp")
       .collection("shopList")
-      .find({ _id: { $in: ids } })
+      .find({ _id: { $in: ids },isArchived:false })
       .toArray();
 
     return result;

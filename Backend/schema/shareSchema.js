@@ -1,14 +1,22 @@
 const shareSchema = {
   type: "object",
   properties: {
-    shopListId: { type: "string" },
-    email: { type: "string" },
-    userId:{ type: "string" },
-
-
+    shopListId: { 
+      type: "string",
+      maxLength: 30
+    },
+    email: { 
+      type: "string",
+      maxLength: 30
+    },
+    userId: { 
+      type: "string",
+      maxLength: 30
+    }
   },
-  required: ["shopListId","email","userId"],
+  required: ["shopListId", "email", "userId"],
   additionalProperties: false,
 };
 
-module.exports=shareSchema;
+module.exports = shareSchema;
+``
