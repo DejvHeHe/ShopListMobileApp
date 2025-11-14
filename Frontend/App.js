@@ -14,7 +14,8 @@ import { UserIdProvider } from './functions/contexts/userIdContext';
 import { ListFunctionProvider } from './functions/contexts/listFunctionContext';
 import { ShopListProvider } from './functions/contexts/shopListContext';
 import { SharedShopListProvider } from './functions/contexts/sharedShopListContext';
-import { MemberListProvider } from './functions/contexts/memberListContext'; // ← nový provider
+import { MemberListProvider } from './functions/contexts/memberListContext';
+import { ArchivedShopListProvider } from './functions/contexts/listArchivedContext'; 
 
 const Stack = createNativeStackNavigator();
 
@@ -24,7 +25,6 @@ export default function App() {
   useEffect(() => {
     const checkToken = async () => {
       const expired = await isTokenExpired();
-      console.log("je expired?:", expired);
       setInitialRouteName(expired ? 'Login' : 'Dashboard');
     };
     checkToken();
@@ -37,22 +37,24 @@ export default function App() {
       <ListFunctionProvider>
         <ShopListProvider>
           <SharedShopListProvider>
-            <MemberListProvider> {/* ← nový provider */}
-              <NavigationContainer>
-                <Stack.Navigator
-                  initialRouteName={initialRouteName}
-                  screenOptions={{ headerShown: false }}
-                >
-                  <Stack.Screen name="Login" component={LoginPage} />
-                  <Stack.Screen name="Register" component={RegisterPage} />
-                  <Stack.Screen name="Dashboard" component={DashboardPage} />
-                  <Stack.Screen name="Archive" component={ArchivePage} />
-                </Stack.Navigator>
+            <ArchivedShopListProvider> 
+              <MemberListProvider>
+                <NavigationContainer>
+                  <Stack.Navigator
+                    initialRouteName={initialRouteName}
+                    screenOptions={{ headerShown: false }}
+                  >
+                    <Stack.Screen name="Login" component={LoginPage} />
+                    <Stack.Screen name="Register" component={RegisterPage} />
+                    <Stack.Screen name="Dashboard" component={DashboardPage} />
+                    <Stack.Screen name="Archive" component={ArchivePage} />
+                  </Stack.Navigator>
 
-                <Toast />
-                <StatusBar style="auto" />
-              </NavigationContainer>
-            </MemberListProvider>
+                  <Toast />
+                  <StatusBar style="auto" />
+                </NavigationContainer>
+              </MemberListProvider>
+            </ArchivedShopListProvider>
           </SharedShopListProvider>
         </ShopListProvider>
       </ListFunctionProvider>

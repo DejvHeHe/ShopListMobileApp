@@ -46,7 +46,7 @@ class shopList {
             const result = await dao.listArchived(dtoIn.userId);
             return result;
         } catch (err) {
-            console.error("Error in list:", err);
+            console.error("Error in list archived:", err);
             throw err;
         }
     }

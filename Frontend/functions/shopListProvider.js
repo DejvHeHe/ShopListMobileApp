@@ -55,6 +55,33 @@ export async function list() {
     return { error: true, message: error.message };
   }
 }
+export async function listArchived() {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://:5000/shoplist/listArchived", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      }
+      
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      return { error: true, message: result.message };
+    }
+    console.log("List archeved:",result)
+    return result;
+  } catch (error) {
+    console.error("Error during list archived:", error);
+    return { error: true, message: error.message };
+  }
+}
 export async function listShared() {
   try {
     const token = await AsyncStorage.getItem("token");
@@ -277,6 +304,61 @@ export async function removeFromShare(data) {
     return { error: false, data: result };
   } catch (error) {
     console.error("Error during remove from share:", error);
+    return { error: true, message: error.message };
+  }
+}
+
+export async function remove(data) {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://:5000/shoplist/remove", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      return { error: true, message: result.message };
+    }
+
+    return { error: false, data: result };
+  } catch (error) {
+    console.error("Error during remove :", error);
+    return { error: true, message: error.message };
+  }
+}
+export async function setArchived(data) {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await fetch("http://:5000/shoplist/setArchived", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    if (!response.ok) {
+      return { error: true, message: result.message };
+    }
+
+    return { error: false, data: result };
+  } catch (error) {
+    console.error("Error during set archived :", error);
     return { error: true, message: error.message };
   }
 }
