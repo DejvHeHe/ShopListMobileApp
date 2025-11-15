@@ -15,7 +15,7 @@ router.post("/removeItem", authMiddleware, shopListController.removeItem);
 router.get("/listArchived", authMiddleware, shopListController.listArchived);
 router.post("/share", authMiddleware, shopListController.share);
 router.get("/listShared", authMiddleware, shopListController.listShared);
-router.post("/viewSharedTo", authMiddleware, shopListController.viewSharedTo);
+router.get("/viewSharedTo", authMiddleware, shopListController.viewSharedTo);
 router.post("/removeFromShare", authMiddleware, shopListController.removeFromShare);
 
 module.exports = router;

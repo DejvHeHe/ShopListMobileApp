@@ -157,10 +157,14 @@ exports.listShared = async (req, res) => {
   }
 };
 
-// VIEW SHARED TO
 exports.viewSharedTo = async (req, res) => {
   try {
-    const dtoIn = { ...req.body, userId: req.user.userId };
+    const dtoIn = {
+      shopListId: req.query.shopListID, 
+      userId: req.user.userId
+    };
+
+
     const result = await shopList.viewSharedTo(dtoIn);
     res.status(200).json(result);
   } catch (err) {
@@ -168,7 +172,8 @@ exports.viewSharedTo = async (req, res) => {
   }
 };
 
-// REMOVE FROM SHARE
+
+
 exports.removeFromShare = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };

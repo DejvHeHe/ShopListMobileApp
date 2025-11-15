@@ -9,7 +9,7 @@ export function MemberListProvider({ children }) {
   // Načte členy konkrétního seznamu
   const refreshMemberList = async (shopListId) => {
     try {
-      const members = await viewSharedTo({ shopListId });
+      const members = await viewSharedTo(shopListId);
       setMemberList(members);
     } catch (err) {
       console.error("Chyba při načítání členů seznamu:", err);
