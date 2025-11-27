@@ -1,10 +1,10 @@
-import { ScrollView, Text, StyleSheet, View } from 'react-native';
+import { ScrollView, Text, StyleSheet, View, ActivityIndicator } from 'react-native';
 import React, { useEffect } from 'react';
 import ShopList from './shopList';
 import { useArchivedShopList } from '../functions/contexts/listArchivedContext';
 
 export default function DashboardArchived() {
-  const { archivedShopLists, refreshArchived } = useArchivedShopList();
+  const { archivedShopLists, refreshArchived, status } = useArchivedShopList();
 
   useEffect(() => {
     refreshArchived();
@@ -12,9 +12,22 @@ export default function DashboardArchived() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {(!archivedShopLists || archivedShopLists.length === 0) ? (
+
+      {/* LOADING */}
+      {status === "loading" && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#000" />
+          <Text style={styles.loadingText}>Načítám archiv…</Text>
+        </View>
+      )}
+
+      {/* PRÁZDNÝ STAV */}
+      {status === "ready" && (!archivedShopLists || archivedShopLists.length === 0) && (
         <Text style={styles.emptyText}>Žádné archivované seznamy</Text>
-      ) : (
+      )}
+
+      {/* OBSAH */}
+      {status === "ready" && archivedShopLists?.length > 0 && (
         <View style={styles.gridContainer}>
           {archivedShopLists.map((list) => (
             <ShopList
@@ -25,6 +38,7 @@ export default function DashboardArchived() {
           ))}
         </View>
       )}
+
     </ScrollView>
   );
 }
@@ -40,6 +54,17 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 18,
   },
+
+  loadingContainer: {
+    marginTop: 50,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#444',
+    fontSize: 16,
+  },
+
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

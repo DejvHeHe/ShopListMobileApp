@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, ScrollView, Modal } from 'react-native';
+import { Pressable, StyleSheet, Text, View, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { removeFromShare } from '../functions/shopListProvider';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,11 +7,11 @@ import { useMemberList } from '../functions/contexts/memberListContext';
 import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 
 export default function ListOfMembers({ shopListId, onClose, ownerId }) {
-  const { memberList, refreshMemberList } = useMemberList();
+  const { memberList, refreshMemberList, status } = useMemberList();   // ← status zde
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const { userId } = useUserId();
-  const { sharedShopLists, refreshShared } = useSharedShopList();
+  const { refreshShared } = useSharedShopList();
 
   const handleUnshare = async () => {
     try {
@@ -19,10 +19,10 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
         const data = { shopListId, removeId: selectedMember._id };
         await removeFromShare(data);
         setIsOpen(false);
+
         await refreshMemberList(shopListId);
 
         if (ownerId.toString() !== userId) {
-
           onClose();
           await refreshShared();
         }
@@ -42,16 +42,29 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
     <>
       <View style={styles.container}>
         <Text style={styles.title}>Sdíleno s:</Text>
-        {memberList && memberList.length > 0 ? (
+
+        {/* LOADING */}
+        {status === "loading" && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={styles.loadingText}>Načítám členy…</Text>
+          </View>
+        )}
+
+        {/* PRÁZDNÝ STAV */}
+        {status === "ready" && memberList?.length === 0 && (
+          <Text style={styles.noMembersText}>Žádní členové</Text>
+        )}
+
+        {/* OBSAH */}
+        {status === "ready" && memberList?.length > 0 && (
           <ScrollView style={styles.memberList}>
             {memberList.map((member, index) => (
               <View key={index} style={styles.memberBox}>
                 <Text style={styles.memberText}>{member.name}: {member.email}</Text>
 
-                {(
-                  userId === member._id.toString() ||
-                  (userId === ownerId.toString() && member._id.toString() !== userId)
-                ) && (
+                {(userId === member._id.toString() ||
+                  (userId === ownerId.toString() && member._id.toString() !== userId)) && (
                   <Pressable
                     style={styles.iconButton}
                     onPress={() => {
@@ -65,11 +78,10 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
               </View>
             ))}
           </ScrollView>
-        ) : (
-          <Text style={styles.noMembersText}>Žádní členové</Text>
         )}
       </View>
 
+      {/* Confirm modal */}
       <Modal visible={isOpen} transparent={true} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -104,6 +116,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 10,
   },
+
+  loadingContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#aaa',
+  },
+
   memberList: {
     maxHeight: 200,
   },
@@ -129,6 +151,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
   },
+
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
