@@ -7,7 +7,7 @@ const handleError = (res, err) => {
   res.status(400).json({ message, code });
 };
 
-// CREATE new shopping list
+
 exports.create = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -21,7 +21,7 @@ exports.create = async (req, res) => {
   }
 };
 
-// LIST shopping lists
+
 exports.list = async (req, res) => {
   try {
     const dtoIn = { userId: req.user.userId };
@@ -32,7 +32,7 @@ exports.list = async (req, res) => {
   }
 };
 
-// ADD ITEM
+
 exports.addItem = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -46,7 +46,7 @@ exports.addItem = async (req, res) => {
   }
 };
 
-// UNCHECK ITEM
+
 exports.uncheckItem = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -60,7 +60,7 @@ exports.uncheckItem = async (req, res) => {
   }
 };
 
-// REMOVE SHOPLIST
+
 exports.remove = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -74,7 +74,6 @@ exports.remove = async (req, res) => {
   }
 };
 
-// UPDATE SHOPLIST
 exports.update = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -88,7 +87,7 @@ exports.update = async (req, res) => {
   }
 };
 
-// EDIT ITEM
+
 exports.editItem = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -102,7 +101,7 @@ exports.editItem = async (req, res) => {
   }
 };
 
-// SET ARCHIVED
+
 exports.setArchived = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -113,7 +112,7 @@ exports.setArchived = async (req, res) => {
   }
 };
 
-// LIST ARCHIVED
+
 exports.listArchived = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -124,7 +123,7 @@ exports.listArchived = async (req, res) => {
   }
 };
 
-// REMOVE ITEM
+
 exports.removeItem = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -135,7 +134,7 @@ exports.removeItem = async (req, res) => {
   }
 };
 
-// SHARE SHOPLIST
+
 exports.share = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -146,7 +145,7 @@ exports.share = async (req, res) => {
   }
 };
 
-// LIST SHARED
+
 exports.listShared = async (req, res) => {
   try {
     const dtoIn = { ...req.body, userId: req.user.userId };
@@ -183,3 +182,17 @@ exports.removeFromShare = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.get = async (req, res) => {
+  try {
+    const dtoIn = {
+      shopListId: req.query.shopListId,
+      userId: req.user.userId
+    };
+    const result = await shopList.get(dtoIn);
+    res.status(200).json(result);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
