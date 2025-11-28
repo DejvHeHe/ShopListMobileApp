@@ -1,6 +1,6 @@
 export const ShopListsMock=[
   {
-    "_id": "shoplist1",
+    "_id": 1,
     "name": "Lidl",
     "isArchived": false,
     "ownerId": "user1",
@@ -11,7 +11,7 @@ export const ShopListsMock=[
     ]
   },
   {
-    "_id": "shoplist2",
+    "_id": 2,
     "name": "Tesco",
     "isArchived": true,
     "ownerId": "user1",
@@ -22,7 +22,7 @@ export const ShopListsMock=[
     ]
   },
   {
-    "_id": "shoplist3",
+    "_id": 3,
     "name": "Kaufland",
     "isArchived": true,
     "ownerId": "user3",
@@ -32,10 +32,10 @@ export const ShopListsMock=[
     ]
   },
   {
-    "_id": "shoplist4",
+    "_id": 4,
     "name": "Albert",
     "isArchived": false,
-    "ownerId": "user4",
+    "ownerId": "user3",
     "items": [
       { "_id": "item9", "name": "Těstoviny", "count": 3, "state": "unchecked" },
       { "_id": "item10", "name": "Kečup", "count": 1, "state": "checked" },

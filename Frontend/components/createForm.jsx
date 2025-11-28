@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { create } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
 import { useShopList } from '../functions/contexts/shopListContext';
+import { isMock } from '../IS_MOCK';
+import { ShopListsMock } from '../ShopListMock';
 
 export default function CreateForm({ onClose }) {
   const [name, setName] = useState("");
@@ -10,17 +12,43 @@ export default function CreateForm({ onClose }) {
 
   const handleCreate = async () => {
     try {
-      const data = { name };
-      const result = await create(data);
+      
 
-      if (result.error) {
-        Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
-        return;
+      if(isMock){
+        const lastId =
+          ShopListsMock.length > 0
+            ? Number(ShopListsMock[ShopListsMock.length - 1]._id)
+            : 0;
+
+        const data = {
+          _id: lastId + 1,
+          name,
+          isArchived:false,
+          userId:"user1",
+          items:[]
+        };
+        ShopListsMock.push(data);
+        await refresh()
+        onClose();
+
+
+
       }
+      else{
+        const data = { name };
+        const result = await create(data);
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl vytvořen' });
-      await refresh()
-      onClose();
+        if (result.error) {
+          Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
+          return;
+        }
+
+        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl vytvořen' });
+        await refresh()
+        onClose();
+
+      }
+      
     } catch (error) {
       console.log("Create form error:", error);
       Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
