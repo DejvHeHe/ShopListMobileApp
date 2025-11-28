@@ -10,6 +10,9 @@ import { useUserId } from '../functions/contexts/userIdContext';
 import { useArchivedShopList } from '../functions/contexts/listArchivedContext';
 import Toast from 'react-native-toast-message';
 
+import { isMock } from '../IS_MOCK';
+import { ShopListsMock } from '../ShopListMock';
+
 export default function ShopList({ shopList, listFunctionTobe }) {
   const [isOpen, setIsOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -26,23 +29,44 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   const handleArchive = async (e) => {
     e.stopPropagation();
     try {
-      const data = { shopListId: shopList._id };
-      await setArchived(data);
+      if (isMock) {
+        ShopListsMock.forEach((element) => {
+          if (element._id === shopList._id) {
+            element.isArchived = !element.isArchived;
+          }
+        });
 
-      // refresh podle typu listu
-      if (listFunction === "list") {
-        await refresh();
-      } else if (listFunction === "listArchived") {
-        await refreshArchived();
+        if (listFunction === "list") {
+          await refresh();
+        } else if (listFunction === "listArchived") {
+          await refreshArchived();
+        }
+
+        Toast.show({
+          type: 'success',
+          text1: 'Hotovo',
+          text2: shopList.isArchived
+            ? 'ShopList byl odstraněn z archivu'
+            : 'ShopList byl archivován',
+        });
+      } else {
+        const data = { shopListId: shopList._id };
+        await setArchived(data);
+
+        if (listFunction === "list") {
+          await refresh();
+        } else if (listFunction === "listArchived") {
+          await refreshArchived();
+        }
+
+        Toast.show({
+          type: 'success',
+          text1: 'Hotovo',
+          text2: shopList.isArchived
+            ? 'ShopList byl odstraněn z archivu'
+            : 'ShopList byl archivován',
+        });
       }
-
-      Toast.show({
-        type: 'success',
-        text1: 'Hotovo',
-        text2: shopList.isArchived
-          ? 'ShopList byl odstraněn z archivu'
-          : 'ShopList byl archivován',
-      });
     } catch (err) {
       console.log("Set archived error:", err);
     }
@@ -50,17 +74,43 @@ export default function ShopList({ shopList, listFunctionTobe }) {
 
   // ✅ Mazání + refresh
   const confirmDeleteAction = async () => {
-    const data = { shopListId: shopList._id };
     try {
-      await remove(data);
+      if (isMock) {
+        const index = ShopListsMock.findIndex(l => l._id === shopList._id);
+        if (index !== -1) {
+          ShopListsMock.splice(index, 1);
+        }
 
-      if (listFunction === "list") {
-        await refresh();
-      } else if (listFunction === "listArchived") {
-        await refreshArchived();
+        if (listFunction === "list") {
+          await refresh();
+        } else if (listFunction === "listArchived") {
+          await refreshArchived();
+        }
+
+        Toast.show({
+          type: 'success',
+          text1: 'Hotovo',
+          text2: 'ShopList byl smazán',
+        });
+      } else {
+        const data = { shopListId: shopList._id };
+        await remove(data);
+
+        if (listFunction === "list") {
+          await refresh();
+        } else if (listFunction === "listArchived") {
+          await refreshArchived();
+        }
+
+        Toast.show({
+          type: 'success',
+          text1: 'Hotovo',
+          text2: 'ShopList byl smazán',
+        });
       }
     } catch (err) {
       console.log('Delete error:', err);
+      Toast.show({ type: 'error', text1: 'Chyba', text2: err.message });
     }
 
     setConfirmDelete(false);
@@ -82,7 +132,6 @@ export default function ShopList({ shopList, listFunctionTobe }) {
         ]}
         onPress={handleOpen}
       >
-        {/* DELETE BUTTON – jen pro vlastníka */}
         {shopList.ownerId === userId && (
           <View style={styles.actionButtons}>
             <Pressable
@@ -101,11 +150,7 @@ export default function ShopList({ shopList, listFunctionTobe }) {
               style={styles.iconButton}
               hitSlop={10}
             >
-              <Feather
-                name={"archive"}
-                size={22}
-                color={"#555"}
-              />
+              <Feather name={"archive"} size={22} color={"#555"} />
             </Pressable>
           </View>
         )}
@@ -116,7 +161,6 @@ export default function ShopList({ shopList, listFunctionTobe }) {
         </Text>
       </Pressable>
 
-      {/* DETAIL MODAL */}
       <Modal
         isVisible={isOpen}
         onBackdropPress={handleOpen}
@@ -127,7 +171,6 @@ export default function ShopList({ shopList, listFunctionTobe }) {
         <ShopListDetail shopList={shopList} onClose={() => setIsOpen(false)} />
       </Modal>
 
-      {/* CONFIRM DELETE MODAL */}
       <Modal
         isVisible={confirmDelete}
         onBackdropPress={() => setConfirmDelete(false)}
@@ -156,85 +199,20 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   );
 }
 
+// --- STYLES zůstávají stejné ---
 const styles = StyleSheet.create({
-  box: {
-    backgroundColor: '#fff',
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-    width: '48%',
-    alignItems: 'center',
-    position: 'relative',
-  },
-
-  actionButtons: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    flexDirection: 'row',
-    gap: 10,
-  },
-  iconButton: {
-    padding: 4,
-  },
-
-  name: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111',
-    marginBottom: 8,
-  },
-
-  details: {
-    fontSize: 16,
-    color: '#555',
-  },
-
-  modalContainer: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-
-  confirmModalContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  confirmBox: {
-    backgroundColor: 'white',
-    padding: 25,
-    borderRadius: 16,
-    width: '80%',
-    alignItems: 'center',
-  },
-  confirmTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 20,
-  },
-  confirmButtons: {
-    flexDirection: 'row',
-    gap: 20,
-  },
-  btn: {
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-  },
-  btnYes: {
-    backgroundColor: '#b00020',
-  },
-  btnNo: {
-    backgroundColor: '#555',
-  },
-  btnText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  box: { backgroundColor: '#fff', paddingVertical: 30, paddingHorizontal: 20, marginBottom: 20, borderRadius: 16, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 4, width: '48%', alignItems: 'center', position: 'relative' },
+  actionButtons: { position: 'absolute', top: 10, right: 10, flexDirection: 'row', gap: 10 },
+  iconButton: { padding: 4 },
+  name: { fontSize: 20, fontWeight: '700', color: '#111', marginBottom: 8 },
+  details: { fontSize: 16, color: '#555' },
+  modalContainer: { justifyContent: 'flex-end', margin: 0 },
+  confirmModalContainer: { justifyContent: 'center', alignItems: 'center' },
+  confirmBox: { backgroundColor: 'white', padding: 25, borderRadius: 16, width: '80%', alignItems: 'center' },
+  confirmTitle: { fontSize: 18, fontWeight: '700', marginBottom: 20 },
+  confirmButtons: { flexDirection: 'row', gap: 20 },
+  btn: { paddingVertical: 10, paddingHorizontal: 25, borderRadius: 10 },
+  btnYes: { backgroundColor: '#b00020' },
+  btnNo: { backgroundColor: '#555' },
+  btnText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });

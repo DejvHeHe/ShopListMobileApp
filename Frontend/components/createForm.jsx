@@ -24,7 +24,7 @@ export default function CreateForm({ onClose }) {
           _id: lastId + 1,
           name,
           isArchived:false,
-          userId:"user1",
+          ownerId:"user1",
           items:[]
         };
         ShopListsMock.push(data);

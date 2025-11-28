@@ -9,6 +9,7 @@ import LoginPage from './routes/LoginPage';
 import RegisterPage from './routes/RegisterPage';
 import DashboardPage from './routes/DashboardPage';
 import ArchivePage from './routes/ArchivePage';
+import MockLoginPage from './routes/MockLoginPage';
 
 import { UserIdProvider } from './functions/contexts/userIdContext';
 import { ListFunctionProvider } from './functions/contexts/listFunctionContext';
@@ -17,18 +18,27 @@ import { SharedShopListProvider } from './functions/contexts/sharedShopListConte
 import { MemberListProvider } from './functions/contexts/memberListContext';
 import { ArchivedShopListProvider } from './functions/contexts/listArchivedContext'; 
 
+import { isMock } from './IS_MOCK';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [initialRouteName, setInitialRouteName] = useState(null);
 
   useEffect(() => {
-    const checkToken = async () => {
+    const init = async () => {
+      if (isMock) {
+        setInitialRouteName('MockLogin');
+        return;
+      }
+
       const expired = await isTokenExpired();
       setInitialRouteName(expired ? 'Login' : 'Dashboard');
     };
-    checkToken();
+
+    init();
   }, []);
+
 
   if (initialRouteName === null) return null;
 
@@ -48,6 +58,7 @@ export default function App() {
                     <Stack.Screen name="Register" component={RegisterPage} />
                     <Stack.Screen name="Dashboard" component={DashboardPage} />
                     <Stack.Screen name="Archive" component={ArchivePage} />
+                    <Stack.Screen name="MockLogin" component={MockLoginPage} />
                   </Stack.Navigator>
 
                   <Toast />

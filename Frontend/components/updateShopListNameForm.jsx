@@ -3,30 +3,38 @@ import React, { useState } from 'react';
 import { update } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
 import { useShopList } from '../functions/contexts/shopListContext';
+import { isMock } from '../IS_MOCK';
+import { ShopListsMock } from '../ShopListMock';
 
-
-export default function UpdateShopListNameForm({ shopList,onClose }) {
+export default function UpdateShopListNameForm({ shopList, onClose }) {
   const [name, setName] = useState("");
-  const [count, setCount] = useState(1);
-  const { shopLists, refresh } = useShopList();
+  const { refresh } = useShopList();
 
-  const handleUpdateShopLIstName = async () => {
+  const handleUpdateShopListName = async () => {
     try {
-      const data = { shopListId:shopList._id,
-            newName:name,};
-      
-        const result = await update(data);
+      if (isMock) {
+        const mockList = ShopListsMock.find(l => l._id === shopList._id);
+        if (mockList) mockList.name = name;
+
+        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jméno bylo aktualizováno (mock)' });
+        await refresh();
+        onClose();
+        return;
+      }
+
+      const data = { shopListId: shopList._id, newName: name };
+      const result = await update(data);
 
       if (result.error) {
         Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
         return;
       }
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jmeno byl aktualizovano' });
-      await refresh()
+      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jméno bylo aktualizováno' });
+      await refresh();
       onClose();
     } catch (error) {
-      console.log("Create form error:", error);
+      console.log("UpdateShopListNameForm error:", error);
       Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
     }
   };
@@ -38,13 +46,11 @@ export default function UpdateShopListNameForm({ shopList,onClose }) {
         style={styles.input}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
-
-
       />
       
       <Pressable
         style={[styles.button, !name && { opacity: 0.5 }]}
-        onPress={handleUpdateShopLIstName}
+        onPress={handleUpdateShopListName}
         disabled={!name}
       >
         <Text style={styles.buttonText}>Potvrdit</Text>
@@ -56,9 +62,6 @@ export default function UpdateShopListNameForm({ shopList,onClose }) {
     </View>
   );
 }
-
-
-
 
 const styles = StyleSheet.create({
   container: {

@@ -6,21 +6,51 @@ import { useShopList } from '../functions/contexts/shopListContext';
 import { useListFunction } from '../functions/contexts/listFunctionContext';
 import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 
+import { isMock } from '../IS_MOCK';
+import { ShopListsMock } from '../ShopListMock';
 
-export default function AddeItemForm({ shopList,onClose }) {
+export default function AddeItemForm({ shopList, onClose }) {
   const [name, setName] = useState("");
   const [count, setCount] = useState(1);
-  const { shopLists, refresh } = useShopList();
-  const { sharedShopLists, refreshShared } = useSharedShopList();
-  const {listFunction,setListFunction}=useListFunction()
+  const { refresh } = useShopList();
+  const { refreshShared } = useSharedShopList();
+  const { listFunction } = useListFunction();
 
   const handleAddItem = async () => {
     try {
-      const data = { shopListId:shopList._id,
-            itemName:name,
-            count:count};
-      
-        const result = await addItem(data);
+      if (isMock) {
+        // najdi správný shopList a přidej item
+        const list = ShopListsMock.find(l => l._id === shopList._id);
+        if (list) {
+          if (!list.items) list.items = [];
+
+          // najdi poslední id a přičti 1
+          const lastId = list.items.length > 0 ? Math.max(...list.items.map(i => i._id)) : 0;
+          const newId = lastId + 1;
+
+          list.items.push({
+            _id: newId,
+            name,
+            count,
+            state: "unchecked",
+          });
+        }
+
+        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán (mock)' });
+
+        if (listFunction === "list") {
+          await refresh();
+        } else if (listFunction === "listShared") {
+          await refreshShared();
+        }
+
+        onClose();
+        return;
+      }
+
+      // skutečné API volání
+      const data = { shopListId: shopList._id, itemName: name, count };
+      const result = await addItem(data);
 
       if (result.error) {
         Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
@@ -28,16 +58,13 @@ export default function AddeItemForm({ shopList,onClose }) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán' });
-      if(listFunction==="list")
-      {
-        await refresh()
 
+      if (listFunction === "list") {
+        await refresh();
+      } else if (listFunction === "listShared") {
+        await refreshShared();
       }
-      else if(listFunction==="listShared")
-      {
-        await refreshShared()
-      }
-      
+
       onClose();
     } catch (error) {
       console.log("Create form error:", error);
@@ -52,20 +79,17 @@ export default function AddeItemForm({ shopList,onClose }) {
         style={styles.input}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
-
-
       />
       <Text style={styles.label}>Počet:</Text>
       <TextInput
         style={styles.input}
-        value={count.toString()} // musí být string pro TextInput
+        value={count.toString()}
         keyboardType="numeric"
         onChange={e => {
-            const val = parseInt(e.nativeEvent.text, 10);
-            setCount(isNaN(val) ? 0 : val); // pokud není číslo, nastav 0
+          const val = parseInt(e.nativeEvent.text, 10);
+          setCount(isNaN(val) ? 0 : val);
         }}
-        />
-
+      />
 
       <Pressable
         style={[styles.button, !name && { opacity: 0.5 }]}
@@ -81,9 +105,6 @@ export default function AddeItemForm({ shopList,onClose }) {
     </View>
   );
 }
-
-
-
 
 const styles = StyleSheet.create({
   container: {
