@@ -1,8 +1,5 @@
-require('dotenv').config(); // Load env vars
-const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
-const bcrypt = require('bcryptjs');
-
-
+require('dotenv').config();
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const uri = process.env.MONGO_URI;
 
@@ -21,330 +18,260 @@ async function ensureConnection() {
   }
 }
 
+// Ensure index on ownerId
+async function ensureOwnerIdIndex() {
+  await ensureConnection();
+  await client
+    .db("ShopListMobileApp")
+    .collection("shopList")
+    .createIndex({ ownerId: 1 });
+}
+
+// Call it once at startup
+ensureOwnerIdIndex().catch(console.error);
+
 async function create(dtoIn) {
-    try {
-        await ensureConnection();
-        dtoIn.ownerId=new ObjectId(dtoIn.ownerId)
-        const result = await client
-            .db("ShopListMobileApp")
-            .collection("shopList")
-            .insertOne(dtoIn);
-        return result;
-    } catch (err) {
-        console.error("Create error:", err);
-        throw err; // předáme dál do ABL
-    }
-}
-
-async function list(ownerId)
-{
-    try{
-        await ensureConnection();
-        const result=await client
-        .db("ShopListMobileApp")
-        .collection("shopList")
-        .find({ownerId:new ObjectId(ownerId),isArchived:false})
-        .toArray();
-
-        return result;
-
-    }
-    catch(err)
-    {
-    console.log("List error:",err)
-    
-    return { success: false, error: err };
-
-    }
-}
-async function listArchived(ownerId)
-{
-    try{
-        await ensureConnection();
-        const result=await client
-        .db("ShopListMobileApp")
-        .collection("shopList")
-        .find({ownerId:new ObjectId(ownerId),isArchived:true})
-        .toArray();
-        return result;
-
-    }
-    catch(err)
-    {
-    console.log("List archived error:",err)
-    
-    return { success: false, error: err };
-
-    }
-}
-async function addItem(item, shopListId) {
-    try {
-        await ensureConnection();
-
-        // Přidání unikátního _id pro položku
-        item._id = new ObjectId();
-
-        const result = await client
-            .db("ShopListMobileApp")
-            .collection("shopList")
-            .updateOne(
-                { _id: new ObjectId(shopListId) },
-                { $push: { items: item } }
-            );
-
-        return result;
-    } catch (err) {
-        console.log("Add item error:", err);
-        return { success: false, error: err };
-    }
-}
-async function uncheckItem(shopListId,itemId) {
-    try {
-        await ensureConnection();
-
-        const result = await client
-            .db("ShopListMobileApp")
-            .collection("shopList")
-            .updateOne(
-                { 
-                    _id: new ObjectId(shopListId),
-                    "items._id": new ObjectId(itemId)
-                },
-                { 
-                    $set: { "items.$.state": "checked" } // upravujeme správné pole
-                }
-            );
-
-        return result;
-    } catch (err) {
-        console.log("Uncheck item error:", err);
-        return { success: false, error: err };
-    }
-}
-
-
-
-async function getShopList(shopListId)
-{
-     try{
-        await ensureConnection();
-        const objectId = new ObjectId(shopListId);
-        const result=await client
-        .db("ShopListMobileApp")
-        .collection("shopList")
-        .findOne({_id:objectId})
-        
-
-        return result;
-
-    }
-    catch(err)
-    {
-    console.log("Get shopList err:",err)
-    
-    return { success: false, error: err };
-
-    }
-
-}
-async function remove(shopListId) {
-    try{
-        await ensureConnection();
-        const objectId = new ObjectId(shopListId);
-        const result=await client
-        .db("ShopListMobileApp")
-        .collection("shopList")
-        .deleteOne({_id:objectId})
-
-        return result;
-
-    }
-    catch(err)
-    {
-        console.log("Delete shopList err:",err)
-    
-        return { success: false, error: err };
-
-    }
-    
-}
-async function update(shopListId,newName) {
-    try {
-        await ensureConnection();
-
-        const result = await client
-            .db("ShopListMobileApp")
-            .collection("shopList")
-            .updateOne(
-                { 
-                    _id: new ObjectId(shopListId),
-                },
-                { 
-                    $set: { name: newName } // upravujeme správné pole
-                }
-            );
-
-        return result;
-    } catch (err) {
-        console.log("Update shopList error:", err);
-        return { success: false, error: err };
-    }
-}
-async function editItem(shopListId,itemId,newName,newCount) {
-    try {
-        await ensureConnection();
-
-        const result = await client
-            .db("ShopListMobileApp")
-            .collection("shopList")
-            .updateOne(
-                { 
-                    _id: new ObjectId(shopListId),
-                    "items._id": new ObjectId(itemId)
-                },
-                { 
-                    $set: { "items.$.name": newName,"items.$.count":newCount } // upravujeme správné pole
-                }
-            );
-
-        return result;
-    } catch (err) {
-        console.log("Edit item error:", err);
-        return { success: false, error: err };
-    }
-}
-async function setArchived(shopListId) {
-    try {
-        await ensureConnection();
-
-        const result = await client
-        .db("ShopListMobileApp")
-        .collection("shopList")
-        .updateOne(
-            { _id: new ObjectId(shopListId) },
-            [
-            { $set: { isArchived: { $not: "$isArchived" } } }
-            ]
-        );
-
-
-        return result;
-    } catch (err) {
-        console.log("Archive shopList error:", err);
-        return { success: false, error: err };
-    }
-}
-async function removeItem(shopListId,itemId) {
-    try {
-        await ensureConnection();
-
-        const result = await client
-        .db("ShopListMobileApp")
-        .collection("shopList")
-        .updateOne(
-            { _id: new ObjectId(shopListId) },
-            { $pull: { items: { _id: new ObjectId(itemId) } } }
-        );
-
-
-        return result;
-    } catch (err) {
-        console.log("Uncheck item error:", err);
-        return { success: false, error: err };
-    }
-}
-async function share(shopListId, email) {
-  try {
-        await ensureConnection();
-
-        const result = await client
-        .db("ShopListMobileApp")
-        .collection("users")
-        .updateOne(
-            { email: email },
-            { $push: { sharedShopList: shopListId } }
-        );
-
-        return result;
-  } catch (err) {
-    console.log("Share shopList error:", err);
-    return { success: false, error: err };
-  }
-}
-async function listShared(userId) {
   try {
     await ensureConnection();
-
-    // Najdi uživatele podle userId
-    const user = await client
-      .db("ShopListMobileApp")
-      .collection("users")
-      .findOne({_id:new ObjectId(userId) });
-    
-    
-    if (!user || !user.sharedShopList || user.sharedShopList.length === 0) {
-      return [];
-    }
-
-    // Převeď ID na ObjectId, pokud jsou uložené jako stringy
-    const ids = user.sharedShopList.map(id => new ObjectId(id));
-
-    // Najdi všechny shoplisty, které odpovídají těmto ID
+    dtoIn.ownerId = new ObjectId(dtoIn.ownerId);
+    dtoIn.isArchived = false;
+    dtoIn.items = dtoIn.items || [];
     const result = await client
       .db("ShopListMobileApp")
       .collection("shopList")
-      .find({ _id: { $in: ids },isArchived:false })
-      .toArray();
-
+      .insertOne(dtoIn);
     return result;
   } catch (err) {
-    console.log("List shared error:", err);
+    console.error("Create error:", err);
+    throw err;
+  }
+}
+
+async function list(ownerId) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .find({ ownerId: new ObjectId(ownerId), isArchived: false })
+      .toArray();
+  } catch (err) {
+    console.error("List error:", err);
     return { success: false, error: err };
   }
 }
+
+async function listArchived(ownerId) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .find({ ownerId: new ObjectId(ownerId), isArchived: true })
+      .toArray();
+  } catch (err) {
+    console.error("List archived error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function getShopList(shopListId) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .findOne({ _id: new ObjectId(shopListId) });
+  } catch (err) {
+    console.error("Get shopList error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function addItem(item, shopListId) {
+  try {
+    await ensureConnection();
+    item._id = new ObjectId();
+    const result = await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .updateOne(
+        { _id: new ObjectId(shopListId), isArchived: false },
+        { $push: { items: item } }
+      );
+    return result;
+  } catch (err) {
+    console.error("Add item error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function uncheckItem(shopListId, itemId) {
+  try {
+    await ensureConnection();
+    const result = await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .updateOne(
+        { _id: new ObjectId(shopListId), isArchived: false, "items._id": new ObjectId(itemId) },
+        { $set: { "items.$.state": "unchecked" } }
+      );
+    return result;
+  } catch (err) {
+    console.error("Uncheck item error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function remove(shopListId) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .deleteOne({ _id: new ObjectId(shopListId) });
+  } catch (err) {
+    console.error("Remove shopList error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function update(shopListId, newName) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .updateOne(
+        { _id: new ObjectId(shopListId), isArchived: false },
+        { $set: { name: newName } }
+      );
+  } catch (err) {
+    console.error("Update shopList error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function editItem(shopListId, itemId, newName, newCount) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .updateOne(
+        { _id: new ObjectId(shopListId), isArchived: false, "items._id": new ObjectId(itemId) },
+        { $set: { "items.$.name": newName, "items.$.count": newCount } }
+      );
+  } catch (err) {
+    console.error("Edit item error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function setArchived(shopListId) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .updateOne(
+        { _id: new ObjectId(shopListId) },
+        [{ $set: { isArchived: { $not: "$isArchived" } } }]
+      );
+  } catch (err) {
+    console.error("Set archived error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function removeItem(shopListId, itemId) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .updateOne(
+        { _id: new ObjectId(shopListId), isArchived: false },
+        { $pull: { items: { _id: new ObjectId(itemId) } } }
+      );
+  } catch (err) {
+    console.error("Remove item error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function share(shopListId, email) {
+  try {
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("users")
+      .updateOne(
+        { email: email },
+        { $push: { sharedShopList: shopListId } }
+      );
+  } catch (err) {
+    console.error("Share shopList error:", err);
+    return { success: false, error: err };
+  }
+}
+
+async function listShared(userId) {
+  try {
+    await ensureConnection();
+    const user = await client
+      .db("ShopListMobileApp")
+      .collection("users")
+      .findOne({ _id: new ObjectId(userId) });
+
+    if (!user || !user.sharedShopList || user.sharedShopList.length === 0) return [];
+
+    const ids = user.sharedShopList.map(id => new ObjectId(id));
+    return await client
+      .db("ShopListMobileApp")
+      .collection("shopList")
+      .find({ _id: { $in: ids }, isArchived: false })
+      .toArray();
+  } catch (err) {
+    console.error("List shared error:", err);
+    return { success: false, error: err };
+  }
+}
+
 async function viewSharedTo(shopListId) {
   try {
     await ensureConnection();
-
-    // Najdi uživatele podle userId
-    const result = await client
+    return await client
       .db("ShopListMobileApp")
       .collection("users")
-      .find({sharedShopList:shopListId})
-      .toArray();   
-
-    
-
-    return result;
+      .find({ sharedShopList: shopListId })
+      .toArray();
   } catch (err) {
-    console.log("View shared to error:", err);
+    console.error("View shared to error:", err);
     return { success: false, error: err };
   }
 }
+
 async function removeFromShare(shopListId, removeId) {
   try {
-        await ensureConnection();
-
-        const result = await client
-        .db("ShopListMobileApp")
-        .collection("users")
-        .updateOne(
-            { _id: new ObjectId(removeId) },
-            { $pull: { sharedShopList: shopListId } }
-        );
-
-        return result;
+    await ensureConnection();
+    return await client
+      .db("ShopListMobileApp")
+      .collection("users")
+      .updateOne(
+        { _id: new ObjectId(removeId) },
+        { $pull: { sharedShopList: shopListId } }
+      );
   } catch (err) {
-    console.log("Remove from shared ShopList error:", err);
+    console.error("Remove from shared ShopList error:", err);
     return { success: false, error: err };
   }
 }
 
-
 module.exports = {
-  
   create,
   list,
+  listArchived,
   getShopList,
   addItem,
   uncheckItem,
@@ -352,11 +279,9 @@ module.exports = {
   update,
   editItem,
   setArchived,
-  listArchived,
   removeItem,
   share,
   listShared,
   viewSharedTo,
   removeFromShare
-  
 };
