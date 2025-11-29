@@ -5,10 +5,12 @@ import Toast from 'react-native-toast-message';
 import { useShopList } from '../functions/contexts/shopListContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
+import { useUserId } from '../functions/contexts/userIdContext';
 
 export default function CreateForm({ onClose }) {
   const [name, setName] = useState("");
   const { shopLists, refresh } = useShopList();
+  const { userId } = useUserId();
 
   const handleCreate = async () => {
     try {
@@ -24,7 +26,7 @@ export default function CreateForm({ onClose }) {
           _id: lastId + 1,
           name,
           isArchived:false,
-          ownerId:"user1",
+          ownerId:userId,
           items:[]
         };
         ShopListsMock.push(data);

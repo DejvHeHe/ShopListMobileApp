@@ -17,6 +17,7 @@ import { ShopListProvider } from './functions/contexts/shopListContext';
 import { SharedShopListProvider } from './functions/contexts/sharedShopListContext';
 import { MemberListProvider } from './functions/contexts/memberListContext';
 import { ArchivedShopListProvider } from './functions/contexts/listArchivedContext'; 
+import { ShopListDetailProvider } from './functions/contexts/shopListDetailContext'; // <-- nový import
 
 import { isMock } from './IS_MOCK';
 
@@ -39,7 +40,6 @@ export default function App() {
     init();
   }, []);
 
-
   if (initialRouteName === null) return null;
 
   return (
@@ -49,21 +49,23 @@ export default function App() {
           <SharedShopListProvider>
             <ArchivedShopListProvider> 
               <MemberListProvider>
-                <NavigationContainer>
-                  <Stack.Navigator
-                    initialRouteName={initialRouteName}
-                    screenOptions={{ headerShown: false }}
-                  >
-                    <Stack.Screen name="Login" component={LoginPage} />
-                    <Stack.Screen name="Register" component={RegisterPage} />
-                    <Stack.Screen name="Dashboard" component={DashboardPage} />
-                    <Stack.Screen name="Archive" component={ArchivePage} />
-                    <Stack.Screen name="MockLogin" component={MockLoginPage} />
-                  </Stack.Navigator>
+                <ShopListDetailProvider> {/* <-- nový provider */}
+                  <NavigationContainer>
+                    <Stack.Navigator
+                      initialRouteName={initialRouteName}
+                      screenOptions={{ headerShown: false }}
+                    >
+                      <Stack.Screen name="Login" component={LoginPage} />
+                      <Stack.Screen name="Register" component={RegisterPage} />
+                      <Stack.Screen name="Dashboard" component={DashboardPage} />
+                      <Stack.Screen name="Archive" component={ArchivePage} />
+                      <Stack.Screen name="MockLogin" component={MockLoginPage} />
+                    </Stack.Navigator>
 
-                  <Toast />
-                  <StatusBar style="auto" />
-                </NavigationContainer>
+                    <Toast />
+                    <StatusBar style="auto" />
+                  </NavigationContainer>
+                </ShopListDetailProvider>
               </MemberListProvider>
             </ArchivedShopListProvider>
           </SharedShopListProvider>

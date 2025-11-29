@@ -2,15 +2,54 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import { share } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
-import { useMemberList } from '../functions/contexts/memberListContext'; // import contextu
+import { useMemberList } from '../functions/contexts/memberListContext'; 
+import { isMock } from '../IS_MOCK';
+import { UsersMock } from '../UserMock';
 
 export default function ShareForm({ shopListId, onClose }) {
   const [email, setEmail] = useState("");
-  
-  const { refreshMemberList } = useMemberList(); // získání funkce pro refresh členů
+  const { refreshMemberList } = useMemberList();
 
-  const handleCreate = async () => {
+  const handleShare = async () => {
     try {
+      if (isMock) {
+        const user = UsersMock.find(u => u.email === email);
+
+       
+        if (!user) {
+          Toast.show({
+            type: "error",
+            text1: "Chyba",
+            text2: "Uživatel s tímto emailem neexistuje."
+          });
+          return;
+        }
+
+        
+        if (user.sharedShopList.includes(shopListId)) {
+          Toast.show({
+            type: "error",
+            text1: "Chyba",
+            text2: "Seznam je už nasdílen tomuto uživateli."
+          });
+          return;
+        }
+
+       
+        user.sharedShopList.push(shopListId);
+
+        Toast.show({
+          type: "success",
+          text1: "Hotovo",
+          text2: "Seznam byl nasdílen."
+        });
+
+        await refreshMemberList(shopListId);
+        onClose();
+        return;
+      }
+
+      
       const data = { shopListId, email };
       const result = await share(data);
 
@@ -21,10 +60,9 @@ export default function ShareForm({ shopListId, onClose }) {
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl nasdílen' });
 
-      // Refresh seznamu položek a členů
-      
-      await refreshMemberList(shopListId); // refresh memberList
+      await refreshMemberList(shopListId);
       onClose();
+
     } catch (error) {
       console.log("Share form error:", error);
       Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
@@ -33,7 +71,7 @@ export default function ShareForm({ shopListId, onClose }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}> Email:</Text>
+      <Text style={styles.label}>Email:</Text>
       <TextInput
         style={styles.input}
         value={email}
@@ -44,7 +82,7 @@ export default function ShareForm({ shopListId, onClose }) {
 
       <Pressable
         style={[styles.button, !email && { opacity: 0.5 }]}
-        onPress={handleCreate}
+        onPress={handleShare}
         disabled={!email}
       >
         <Text style={styles.buttonText}>Potvrdit</Text>
@@ -56,7 +94,6 @@ export default function ShareForm({ shopListId, onClose }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     padding: 20,

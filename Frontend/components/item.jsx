@@ -1,47 +1,38 @@
 import { Pressable, StyleSheet, Text, View, Modal } from 'react-native';
 import React, { useState } from 'react';
-import Checkbox from 'expo-checkbox'; 
+import Checkbox from 'expo-checkbox';
 import { uncheckItem, removeItem } from '../functions/shopListProvider';
 import { Ionicons } from '@expo/vector-icons';
-import { useShopList } from '../functions/contexts/shopListContext';
-import { useListFunction } from '../functions/contexts/listFunctionContext';
-import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
+import { useShopListDetail } from '../functions/contexts/shopListDetailContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 
-export default function Item({ item, shopListId, isArchived }) {
-  const [checked, setChecked] = useState(item.state === 'checked');
+export default function Item({ item, isArchived }) {
   const [modalVisible, setModalVisible] = useState(false);
+  const { shopList, refresh } = useShopListDetail(); 
 
-  const { refresh } = useShopList();
-  const { listFunction } = useListFunction();
-  const { refreshShared } = useSharedShopList();
+  if (!shopList) return <Text>Načítám...</Text>;
+
+  // Vezmeme aktuální stav položky z provideru
+  const currentItem = shopList.items.find(i => i._id === item._id);
+  const checked = currentItem?.state === 'checked';
 
   const handleChange = async () => {
-    // API logika: jednosměrný check
-    if (checked) return; 
-    setChecked(true);
+    if (checked) return;
 
     try {
       if (isMock) {
-        const list = ShopListsMock.find(l => l._id === shopListId);
+        const list = ShopListsMock.find(l => l._id === shopList._id);
         if (list && list.items) {
           const targetItem = list.items.find(i => i._id === item._id);
-          if (targetItem && targetItem.state === 'unchecked') {
-            targetItem.state = 'checked';
-          }
+          if (targetItem) targetItem.state = 'checked';
         }
-
-        if (listFunction === "list") await refresh();
-        else if (listFunction === "listShared") await refreshShared();
+        await refresh();
         return;
       }
 
-      // Reálné API
-      await uncheckItem({ shopListId, itemId: item._id });
-      if (listFunction === "list") await refresh();
-      else if (listFunction === "listShared") await refreshShared();
-
+      await uncheckItem({ shopListId: shopList._id, itemId: item._id });
+      await refresh();
     } catch (err) {
       console.error("Chyba při update itemu:", err);
     }
@@ -50,23 +41,17 @@ export default function Item({ item, shopListId, isArchived }) {
   const handleRemove = async () => {
     try {
       if (isMock) {
-        const list = ShopListsMock.find(l => l._id === shopListId);
+        const list = ShopListsMock.find(l => l._id === shopList._id);
         if (list && list.items) {
           list.items = list.items.filter(i => i._id !== item._id);
         }
-
-        if (listFunction === "list") await refresh();
-        else if (listFunction === "listShared") await refreshShared();
-
+        await refresh();
         setModalVisible(false);
         return;
       }
 
-      // Reálné API
-      await removeItem({ shopListId, itemId: item._id });
-      if (listFunction === "list") await refresh();
-      else if (listFunction === "listShared") await refreshShared();
-
+      await removeItem({ shopListId: shopList._id, itemId: item._id });
+      await refresh();
       setModalVisible(false);
     } catch (err) {
       console.error('Chyba při odstranění itemu:', err);
@@ -81,7 +66,7 @@ export default function Item({ item, shopListId, isArchived }) {
           onValueChange={handleChange}
           style={styles.checkbox}
           color={checked ? '#000' : undefined}
-          disabled={checked || isArchived} // nelze unchecknout ani u archivovaných
+          disabled={checked || isArchived}
         />
         <Text style={styles.text}>{item.name} ({item.count})</Text>
 

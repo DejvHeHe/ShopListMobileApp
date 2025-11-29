@@ -5,9 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserId } from '../functions/contexts/userIdContext';
 import { useMemberList } from '../functions/contexts/memberListContext';
 import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
+import { isMock } from '../IS_MOCK';
+import { UsersMock } from '../UserMock';
 
 export default function ListOfMembers({ shopListId, onClose, ownerId }) {
-  const { memberList, refreshMemberList, status } = useMemberList();   // ← status zde
+  const { memberList, refreshMemberList, status } = useMemberList();  
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const { userId } = useUserId();
@@ -15,22 +17,47 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
 
   const handleUnshare = async () => {
     try {
-      if (selectedMember) {
-        const data = { shopListId, removeId: selectedMember._id };
-        await removeFromShare(data);
+      if (!selectedMember) return;
+
+    
+      if (isMock) {
+        const user = UsersMock.find(u => u._id === selectedMember._id);
+
+        if (user && Array.isArray(user.sharedShopList)) {
+        
+          user.sharedShopList = user.sharedShopList.filter(id => id !== shopListId);
+        }
+
         setIsOpen(false);
 
         await refreshMemberList(shopListId);
+        await refreshShared();
 
+        
         if (ownerId.toString() !== userId) {
           onClose();
-          await refreshShared();
         }
+
+        return;
       }
+
+      
+      const data = { shopListId, removeId: selectedMember._id };
+      await removeFromShare(data);
+
+      setIsOpen(false);
+      await refreshMemberList(shopListId);
+
+      if (ownerId.toString() !== userId) {
+        onClose();
+        await refreshShared();
+      }
+
     } catch (err) {
       console.error("Chyba při mazání člena:", err);
     }
   };
+
 
   useEffect(() => {
     if (shopListId) {

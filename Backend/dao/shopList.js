@@ -114,7 +114,7 @@ async function uncheckItem(shopListId, itemId) {
       .collection("shopList")
       .updateOne(
         { _id: new ObjectId(shopListId), isArchived: false, "items._id": new ObjectId(itemId) },
-        { $set: { "items.$.state": "unchecked" } }
+        { $set: { "items.$.state": "checked" } }
       );
     return result;
   } catch (err) {

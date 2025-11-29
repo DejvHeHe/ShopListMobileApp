@@ -14,7 +14,22 @@ const Ajv = require("ajv");
 const ajv = new Ajv();
 
 class shopList {
+    // Get kontroluje, zda je user member nebo owner
     async get(dtoIn) {
+        const shopList = await dao.getShopList(dtoIn.shopListId);
+        if (!shopList) {
+            throw { code: "shopListDoesNotExist", message: "ShopList neexistuje" };
+        }
+        const members = await dao.viewSharedTo(dtoIn.shopListId);
+        const isMember = members.some(user => user._id.toString() === dtoIn.userId.toString());
+        if (!isMember && shopList.ownerId.toString() !== dtoIn.userId.toString()) {
+            throw { code: "youAreNotMember", message: "Nejste členem shoplistu" };
+        }
+        return shopList;
+    }
+
+    // Pouze existence a owner check pro funkce, které musí kontrolovat vlastníka
+    async isOwner(dtoIn) {
         const shopList = await dao.getShopList(dtoIn.shopListId);
         if (!shopList) {
             throw { code: "shopListDoesNotExist", message: "ShopList neexistuje" };
@@ -29,16 +44,6 @@ class shopList {
         const valid = ajv.validate(schema, dtoIn);
         if (!valid) {
             throw { code: "dtoInIsNotValid", validationError: ajv.errors };
-        }
-    }
-
-    async isMember(dtoIn, exist) {
-        const members = await dao.viewSharedTo(dtoIn.shopListId);
-        const isSharedMember = Array.isArray(members) && members.some(
-            (user) => user._id.toString() === dtoIn.userId.toString()
-        );
-        if (!isSharedMember && exist.ownerId.toString() !== dtoIn.userId.toString()) {
-            throw { code: "youAreNotMember", message: "Nejste členem shoplistu" };
         }
     }
 
@@ -66,18 +71,16 @@ class shopList {
 
     async viewSharedTo(dtoIn) {
         this.validate(dtoIn, viewSharedToSchema);
-        const exist = await this.get(dtoIn);
-        await this.isMember(dtoIn, exist);
+        const shopList = await this.get(dtoIn); // member nebo owner check
         return await dao.viewSharedTo(dtoIn.shopListId);
     }
 
     async addItem(dtoIn) {
         this.validate(dtoIn, addItemSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.isArchived) {
+        const shopList = await this.get(dtoIn); // member nebo owner
+        if (shopList.isArchived) {
             throw { code: "shopListIsArchived", message: "ShopList je archivovaný" };
         }
-        await this.isMember(dtoIn, exist);
         const item = {
             name: dtoIn.itemName,
             count: dtoIn.count ?? 1,
@@ -88,34 +91,32 @@ class shopList {
 
     async uncheckItem(dtoIn) {
         this.validate(dtoIn, uncheckItemSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.isArchived) {
+        const shopList = await this.get(dtoIn); // member nebo owner
+        if (shopList.isArchived) {
             throw { code: "shopListIsArchived", message: "ShopList je archivovaný" };
         }
-        await this.isMember(dtoIn, exist);
         return await dao.uncheckItem(dtoIn.shopListId, dtoIn.itemId);
     }
 
     async remove(dtoIn) {
         this.validate(dtoIn, removeSchema);
-        const exist = await this.get(dtoIn);
+        const shopList = await this.isOwner(dtoIn); // jen owner
         return await dao.remove(dtoIn.shopListId);
     }
 
     async removeItem(dtoIn) {
         this.validate(dtoIn, removeItemSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.isArchived) {
+        const shopList = await this.get(dtoIn); // member nebo owner
+        if (shopList.isArchived) {
             throw { code: "shopListIsArchived", message: "ShopList je archivovaný" };
         }
-        await this.isMember(dtoIn, exist);
         return await dao.removeItem(dtoIn.shopListId, dtoIn.itemId);
     }
 
     async update(dtoIn) {
         this.validate(dtoIn, updateSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.isArchived) {
+        const shopList = await this.isOwner(dtoIn); // jen owner
+        if (shopList.isArchived) {
             throw { code: "shopListIsArchived", message: "ShopList je archivovaný" };
         }
         return await dao.update(dtoIn.shopListId, dtoIn.newName);
@@ -123,29 +124,23 @@ class shopList {
 
     async editItem(dtoIn) {
         this.validate(dtoIn, editItemSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.isArchived) {
+        const shopList = await this.get(dtoIn); // member nebo owner
+        if (shopList.isArchived) {
             throw { code: "shopListIsArchived", message: "ShopList je archivovaný" };
         }
-        await this.isMember(dtoIn, exist);
-        return await dao.editItem(
-            dtoIn.shopListId,
-            dtoIn.itemId,
-            dtoIn.newName,
-            dtoIn.newCount
-        );
+        return await dao.editItem(dtoIn.shopListId, dtoIn.itemId, dtoIn.newName, dtoIn.newCount);
     }
 
     async setArchived(dtoIn) {
         this.validate(dtoIn, setArchivedSchema);
-        const exist = await this.get(dtoIn);
+        const shopList = await this.isOwner(dtoIn); // jen owner
         return await dao.setArchived(dtoIn.shopListId);
     }
 
     async share(dtoIn) {
         this.validate(dtoIn, shareSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.isArchived) {
+        const shopList = await this.get(dtoIn); // member nebo owner
+        if (shopList.isArchived) {
             throw { code: "shopListIsArchived", message: "ShopList je archivovaný" };
         }
         return await dao.share(dtoIn.shopListId, dtoIn.email);
@@ -153,12 +148,11 @@ class shopList {
 
     async removeFromShare(dtoIn) {
         this.validate(dtoIn, removeFromShareSchema);
-        const exist = await this.get(dtoIn);
-        if (exist.ownerId.toString() !== dtoIn.userId.toString()) {
+        const shopList = await this.get(dtoIn); // member nebo owner
+        if (shopList.ownerId.toString() !== dtoIn.userId.toString()) {
             if (dtoIn.userId.toString() !== dtoIn.removeId.toString()) {
                 throw { code: "shopListIsNotYours", message: "Nejste vlastníkem shoplistu" };
             }
-            await this.isMember(dtoIn, exist);
         }
         return await dao.removeFromShare(dtoIn.shopListId, dtoIn.removeId);
     }

@@ -9,10 +9,10 @@ const ShopListContext = createContext();
 export function ShopListProvider({ children }) {
   const [shopLists, setShopLists] = useState([]);
   const [status, setStatus] = useState("loading");
-  const { userId } = useUserId(); // 🔥 Nutné pro filtrování podle ownerId
+  const { userId } = useUserId(); 
 
   const refresh = async () => {
-    if (!userId) return; // počká než se userId načte
+    if (!userId) return; 
 
     setStatus("loading");
 
@@ -22,13 +22,12 @@ export function ShopListProvider({ children }) {
 
       const dtoIn = ShopListsMock
         .filter(list => list.isArchived === false)
-        .filter(list => list.ownerId === userId);  // 🔥 filtrování podle ownerId
-
+        .filter(list => list.ownerId === userId);  
       setShopLists(dtoIn);
     } else {
       const data = await list();
 
-      // přidáme stejný filtr i pro production
+   
       const filtered = data.filter(list => list.ownerId === userId);
 
       setShopLists(filtered);
@@ -39,7 +38,7 @@ export function ShopListProvider({ children }) {
 
   useEffect(() => {
     refresh();
-  }, [userId]); // 🔥 refresh při změně usera
+  }, [userId]);
 
   return (
     <ShopListContext.Provider value={{ shopLists, refresh, status }}>

@@ -2,29 +2,37 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import { addItem } from '../functions/shopListProvider';
 import Toast from 'react-native-toast-message';
-import { useShopList } from '../functions/contexts/shopListContext';
-import { useListFunction } from '../functions/contexts/listFunctionContext';
-import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
+import { useShopListDetail } from '../functions/contexts/shopListDetailContext';
 
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 
-export default function AddeItemForm({ shopList, onClose }) {
+export default function AddItemForm({ onClose }) {
   const [name, setName] = useState("");
   const [count, setCount] = useState(1);
-  const { refresh } = useShopList();
-  const { refreshShared } = useSharedShopList();
-  const { listFunction } = useListFunction();
+  const { shopList, refresh } = useShopListDetail(); // <- používáme detail context
+
+  if (!shopList) {
+    return <Text>Načítám...</Text>;
+  }
 
   const handleAddItem = async () => {
     try {
+      if (count < 1) {
+        Toast.show({
+          type: "error",
+          text1: "Chybný počet",
+          text2: "Počet musí být alespoň 1.",
+        });
+        return;
+      }
+
       if (isMock) {
         // najdi správný shopList a přidej item
         const list = ShopListsMock.find(l => l._id === shopList._id);
         if (list) {
           if (!list.items) list.items = [];
 
-          // najdi poslední id a přičti 1
           const lastId = list.items.length > 0 ? Math.max(...list.items.map(i => i._id)) : 0;
           const newId = lastId + 1;
 
@@ -37,13 +45,7 @@ export default function AddeItemForm({ shopList, onClose }) {
         }
 
         Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán (mock)' });
-
-        if (listFunction === "list") {
-          await refresh();
-        } else if (listFunction === "listShared") {
-          await refreshShared();
-        }
-
+        await refresh(); // reload pouze detailu
         onClose();
         return;
       }
@@ -58,16 +60,10 @@ export default function AddeItemForm({ shopList, onClose }) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán' });
-
-      if (listFunction === "list") {
-        await refresh();
-      } else if (listFunction === "listShared") {
-        await refreshShared();
-      }
-
+      await refresh(); // reload pouze detailu
       onClose();
     } catch (error) {
-      console.log("Create form error:", error);
+      console.log("AddItemForm error:", error);
       Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
     }
   };

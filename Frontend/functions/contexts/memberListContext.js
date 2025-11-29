@@ -1,18 +1,33 @@
 import React, { createContext, useContext, useState } from "react";
 import { viewSharedTo } from "../shopListProvider";
+import { isMock } from "../../IS_MOCK";
+import { UsersMock } from "../../UserMock";
 
 const MemberListContext = createContext();
 
 export function MemberListProvider({ children }) {
   const [memberList, setMemberList] = useState([]);
-  const [status, setStatus] = useState("ready"); // "ready" | "loading"
+  const [status, setStatus] = useState("ready"); 
 
-  // Načte členy konkrétního seznamu
   const refreshMemberList = async (shopListId) => {
     setStatus("loading");
     try {
+
+      // 🔥 MOCK režim
+      if (isMock) {
+        const members = UsersMock.filter(user =>
+          user.sharedShopList.includes(shopListId)
+        );
+
+        setMemberList(members);
+        setStatus("ready");
+        return;
+      }
+
+      // 🔥 Reálné API
       const members = await viewSharedTo(shopListId);
       setMemberList(members);
+
     } catch (err) {
       console.error("Chyba při načítání členů seznamu:", err);
     } finally {
