@@ -5,51 +5,42 @@ import Toast from 'react-native-toast-message';
 import { useMemberList } from '../functions/contexts/memberListContext'; 
 import { isMock } from '../IS_MOCK';
 import { UsersMock } from '../UserMock';
+import { useColorMode } from '../functions/contexts/colorModeContext';
 
 export default function ShareForm({ shopListId, onClose }) {
   const [email, setEmail] = useState("");
   const { refreshMemberList } = useMemberList();
+  const { colorMode } = useColorMode();
+
+  const theme = {
+    background: colorMode ? '#1E1E1E' : '#fff',
+    text: colorMode ? '#fff' : '#000',
+    border: colorMode ? '#555' : '#000',
+    buttonPrimary: colorMode ? '#00bfff' : '#000',
+    buttonTextPrimary: '#fff',
+    buttonCancelText: colorMode ? '#fff' : '#000',
+    placeholder: colorMode ? '#aaa' : '#888',
+  };
 
   const handleShare = async () => {
     try {
       if (isMock) {
         const user = UsersMock.find(u => u.email === email);
-
-       
         if (!user) {
-          Toast.show({
-            type: "error",
-            text1: "Chyba",
-            text2: "Uživatel s tímto emailem neexistuje."
-          });
+          Toast.show({ type: "error", text1: "Chyba", text2: "Uživatel s tímto emailem neexistuje." });
           return;
         }
-
-        
         if (user.sharedShopList.includes(shopListId)) {
-          Toast.show({
-            type: "error",
-            text1: "Chyba",
-            text2: "Seznam je už nasdílen tomuto uživateli."
-          });
+          Toast.show({ type: "error", text1: "Chyba", text2: "Seznam je už nasdílen tomuto uživateli." });
           return;
         }
-
-       
         user.sharedShopList.push(shopListId);
-
-        Toast.show({
-          type: "success",
-          text1: "Hotovo",
-          text2: "Seznam byl nasdílen."
-        });
-
+        Toast.show({ type: "success", text1: "Hotovo", text2: "Seznam byl nasdílen." });
         await refreshMemberList(shopListId);
         onClose();
         return;
       }
 
-      
       const data = { shopListId, email };
       const result = await share(data);
 
@@ -59,7 +50,6 @@ export default function ShareForm({ shopListId, onClose }) {
       }
 
       Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl nasdílen' });
-
       await refreshMemberList(shopListId);
       onClose();
 
@@ -70,34 +60,34 @@ export default function ShareForm({ shopListId, onClose }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Email:</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.label, { color: theme.text }]}>Email:</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: theme.text, borderColor: theme.border }]}
         value={email}
         onChange={e => setEmail(e.nativeEvent.text)}
         placeholder="Zadej email..."
-        placeholderTextColor="#888"
+        placeholderTextColor={theme.placeholder}
       />
 
       <Pressable
-        style={[styles.button, !email && { opacity: 0.5 }]}
+        style={[styles.button, !email && { opacity: 0.5 }, { backgroundColor: theme.buttonPrimary }]}
         onPress={handleShare}
         disabled={!email}
       >
-        <Text style={styles.buttonText}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonTextPrimary }]}>Potvrdit</Text>
       </Pressable>
 
-      <Pressable style={styles.cancelButton} onPress={onClose}>
-        <Text style={styles.cancelButtonText}>Zrušit</Text>
+      <Pressable style={[styles.cancelButton, { borderColor: theme.border }]} onPress={onClose}>
+        <Text style={[styles.cancelButtonText, { color: theme.buttonCancelText }]}>Zrušit</Text>
       </Pressable>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 12,
     margin: 20,
     shadowColor: '#000',
@@ -109,39 +99,32 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#000',
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
     fontSize: 16,
     marginBottom: 20,
-    color: '#000',
   },
   button: {
-    backgroundColor: '#000',
     paddingVertical: 14,
     borderRadius: 10,
     marginBottom: 10,
   },
   buttonText: {
-    color: '#fff',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',
   },
   cancelButton: {
     borderWidth: 1,
-    borderColor: '#000',
     paddingVertical: 14,
     borderRadius: 10,
   },
   cancelButtonText: {
-    color: '#000',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',

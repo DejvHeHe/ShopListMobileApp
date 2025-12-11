@@ -6,17 +6,29 @@ import { useShopList } from '../functions/contexts/shopListContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 import { useUserId } from '../functions/contexts/userIdContext';
+import { useColorMode } from '../functions/contexts/colorModeContext';
 
 export default function CreateForm({ onClose }) {
   const [name, setName] = useState("");
   const { shopLists, refresh } = useShopList();
   const { userId } = useUserId();
+  const { colorMode } = useColorMode();
+
+  const theme = {
+    containerBg: colorMode ? '#222' : '#fff',
+    label: colorMode ? '#fff' : '#000',
+    inputBg: colorMode ? '#333' : '#fff',
+    inputText: colorMode ? '#fff' : '#000',
+    placeholder: colorMode ? '#aaa' : '#888',
+    buttonBg: '#000',
+    buttonText: '#fff',
+    cancelBorder: colorMode ? '#fff' : '#000',
+    cancelText: colorMode ? '#fff' : '#000',
+  };
 
   const handleCreate = async () => {
     try {
-      
-
-      if(isMock){
+      if (isMock) {
         const lastId =
           ShopListsMock.length > 0
             ? Number(ShopListsMock[ShopListsMock.length - 1]._id)
@@ -30,27 +42,19 @@ export default function CreateForm({ onClose }) {
           items:[]
         };
         ShopListsMock.push(data);
-        await refresh()
+        await refresh();
         onClose();
-
-
-
-      }
-      else{
+      } else {
         const data = { name };
         const result = await create(data);
-
         if (result.error) {
           Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
           return;
         }
-
         Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl vytvořen' });
-        await refresh()
+        await refresh();
         onClose();
-
       }
-      
     } catch (error) {
       console.log("Create form error:", error);
       Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
@@ -58,38 +62,34 @@ export default function CreateForm({ onClose }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Jméno nákupního seznamu:</Text>
+    <View style={[styles.container, { backgroundColor: theme.containerBg }]}>
+      <Text style={[styles.label, { color: theme.label }]}>Jméno nákupního seznamu:</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.inputBg, color: theme.inputText }]}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
         placeholder="Zadej název..."
-        placeholderTextColor="#888"
+        placeholderTextColor={theme.placeholder}
       />
 
       <Pressable
-        style={[styles.button, !name && { opacity: 0.5 }]}
+        style={[styles.button, !name && { opacity: 0.5 }, { backgroundColor: theme.buttonBg }]}
         onPress={handleCreate}
         disabled={!name}
       >
-        <Text style={styles.buttonText}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonText }]}>Potvrdit</Text>
       </Pressable>
 
-      <Pressable style={styles.cancelButton} onPress={onClose}>
-        <Text style={styles.cancelButtonText}>Zrušit</Text>
+      <Pressable style={[styles.cancelButton, { borderColor: theme.cancelBorder }]} onPress={onClose}>
+        <Text style={[styles.cancelButtonText, { color: theme.cancelText }]}>Zrušit</Text>
       </Pressable>
     </View>
   );
 }
 
-
-
-
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 12,
     margin: 20,
     shadowColor: '#000',
@@ -98,44 +98,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#000',
-  },
-  button: {
-    backgroundColor: '#000',
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    borderWidth: 1,
-    borderColor: '#000',
-    paddingVertical: 14,
-    borderRadius: 10,
-  },
-  cancelButtonText: {
-    color: '#000',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  label: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  input: { borderWidth: 1, borderColor: '#000', borderRadius: 8, paddingVertical: 10, paddingHorizontal: 12, fontSize: 16, marginBottom: 20 },
+  button: { paddingVertical: 14, borderRadius: 10, marginBottom: 10 },
+  buttonText: { textAlign: 'center', fontSize: 16, fontWeight: '600' },
+  cancelButton: { borderWidth: 1, paddingVertical: 14, borderRadius: 10 },
+  cancelButtonText: { textAlign: 'center', fontSize: 16, fontWeight: '600' },
 });

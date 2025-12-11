@@ -1,19 +1,19 @@
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Footer from '../components/footer';
 import Dashboard from '../components/dashboard';
 import DashboardShared from '../components/dashboardShared';
 import { useUserId } from '../functions/contexts/userIdContext';
+import { useColorMode } from '../functions/contexts/colorModeContext';
 
 export default function DashboardPage() {
   const { getUserId } = useUserId();
-  
+  const { colorMode } = useColorMode(); // true = dark, false = light
 
   useEffect(() => {
     const fetchUserId = async () => {
       try {
         await getUserId();        
-        
       } catch (err) {
         console.log('❌ Chyba při načítání userId:', err);
       }
@@ -22,14 +22,20 @@ export default function DashboardPage() {
     fetchUserId();
   }, []);
 
+  const themeStyles = {
+    backgroundColor: colorMode ? "#121212" : "#F5F5F5",
+    headerColor: colorMode ? "#fff" : "#000",
+    subHeaderColor: colorMode ? "#ccc" : "#333",
+  };
+
   return (
-    <SafeAreaView style={styles.safeContainer}>
+    <SafeAreaView style={[styles.safeContainer, { backgroundColor: themeStyles.backgroundColor }]}>
       <View style={styles.container}>
         <View style={styles.content}>
-          <Text style={styles.header}>Moje ShopListy</Text>
+          <Text style={[styles.header, { color: themeStyles.headerColor }]}>Moje ShopListy</Text>
           <Dashboard />
 
-          <Text style={styles.subHeader}>Sdílené ShopListy</Text>
+          <Text style={[styles.subHeader, { color: themeStyles.subHeaderColor }]}>Sdílené ShopListy</Text>
           <DashboardShared />
         </View>
 
@@ -44,7 +50,6 @@ export default function DashboardPage() {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   container: {
     flex: 1,
@@ -57,7 +62,6 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000',
     marginBottom: 25,
     textTransform: 'uppercase',
     textAlign: 'center',
@@ -65,7 +69,6 @@ const styles = StyleSheet.create({
   subHeader: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#333',
     marginTop: 40,
     marginBottom: 15,
     textAlign: 'left',
