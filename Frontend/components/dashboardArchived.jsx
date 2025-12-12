@@ -2,28 +2,38 @@ import { ScrollView, Text, StyleSheet, View, ActivityIndicator } from 'react-nat
 import React, { useEffect } from 'react';
 import ShopList from './shopList';
 import { useArchivedShopList } from '../functions/contexts/listArchivedContext';
+import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function DashboardArchived() {
   const { archivedShopLists, refreshArchived, status } = useArchivedShopList();
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
+
+  const theme = {
+    background: colorMode ? '#1E1E1E' : '#fff',
+    text: colorMode ? '#fff' : '#444',
+    textSecondary: colorMode ? '#ccc' : '#666',
+  };
 
   useEffect(() => {
     refreshArchived();
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-
+    <ScrollView contentContainerStyle={[styles.scrollContainer, { backgroundColor: theme.background }]}>
+      
       {/* LOADING */}
       {status === "loading" && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#000" />
-          <Text style={styles.loadingText}>Načítám archiv…</Text>
+          <ActivityIndicator size="large" color={theme.text} />
+          <Text style={[styles.loadingText, { color: theme.textSecondary }]}>{t('archived_loading')}</Text>
         </View>
       )}
 
       {/* PRÁZDNÝ STAV */}
       {status === "ready" && (!archivedShopLists || archivedShopLists.length === 0) && (
-        <Text style={styles.emptyText}>Žádné archivované seznamy</Text>
+        <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('archived_empty')}</Text>
       )}
 
       {/* OBSAH */}
@@ -51,7 +61,6 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     marginTop: 50,
-    color: '#666',
     fontSize: 18,
   },
 
@@ -61,7 +70,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#444',
     fontSize: 16,
   },
 

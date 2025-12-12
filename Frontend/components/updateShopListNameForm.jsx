@@ -6,11 +6,13 @@ import { useShopList } from '../functions/contexts/shopListContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext'; // 🆕 
 
 export default function UpdateShopListNameForm({ shopList, onClose }) {
   const [name, setName] = useState("");
   const { refresh } = useShopList();
-  const { colorMode } = useColorMode(); // 🆕
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage(); // 🆕  
 
   const theme = {
     background: colorMode ? '#1E1E1E' : '#fff',
@@ -27,7 +29,7 @@ export default function UpdateShopListNameForm({ shopList, onClose }) {
         const mockList = ShopListsMock.find(l => l._id === shopList._id);
         if (mockList) mockList.name = name;
 
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jméno bylo aktualizováno (mock)' });
+        Toast.show({ type: 'success', text1: t('update_success_mock') });
         await refresh();
         onClose();
         return;
@@ -37,22 +39,22 @@ export default function UpdateShopListNameForm({ shopList, onClose }) {
       const result = await update(data);
 
       if (result.error) {
-        Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
+        Toast.show({ type: 'error', text1: t('update_error'), text2: result.message });
         return;
       }
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jméno bylo aktualizováno' });
+      Toast.show({ type: 'success', text1: t('update_success') });
       await refresh();
       onClose();
     } catch (error) {
       console.log("UpdateShopListNameForm error:", error);
-      Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
+      Toast.show({ type: 'error', text1: t('update_error'), text2: error.message });
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.label, { color: theme.text }]}>Nové jméno:</Text>
+      <Text style={[styles.label, { color: theme.text }]}>{t('update_label')}</Text>
       <TextInput
         style={[styles.input, { color: theme.text, borderColor: theme.border }]}
         value={name}
@@ -64,11 +66,11 @@ export default function UpdateShopListNameForm({ shopList, onClose }) {
         onPress={handleUpdateShopListName}
         disabled={!name}
       >
-        <Text style={[styles.buttonText, { color: theme.buttonTextPrimary }]}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonTextPrimary }]}>{t('update_confirm')}</Text>
       </Pressable>
 
       <Pressable style={[styles.cancelButton, { borderColor: theme.border }]} onPress={onClose}>
-        <Text style={[styles.cancelButtonText, { color: theme.buttonCancelText }]}>Zrušit</Text>
+        <Text style={[styles.cancelButtonText, { color: theme.buttonCancelText }]}>{t('update_cancel')}</Text>
       </Pressable>
     </View>
   );

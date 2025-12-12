@@ -1,3 +1,4 @@
+// CreateForm.js
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import { create } from '../functions/shopListProvider';
@@ -7,12 +8,14 @@ import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 import { useUserId } from '../functions/contexts/userIdContext';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function CreateForm({ onClose }) {
   const [name, setName] = useState("");
-  const { shopLists, refresh } = useShopList();
+  const { refresh } = useShopList();
   const { userId } = useUserId();
   const { colorMode } = useColorMode();
+  const { t } = useLanguage();
 
   const theme = {
     containerBg: colorMode ? '#222' : '#fff',
@@ -28,6 +31,8 @@ export default function CreateForm({ onClose }) {
 
   const handleCreate = async () => {
     try {
+      if (!name) return;
+
       if (isMock) {
         const lastId =
           ShopListsMock.length > 0
@@ -44,31 +49,33 @@ export default function CreateForm({ onClose }) {
         ShopListsMock.push(data);
         await refresh();
         onClose();
-      } else {
-        const data = { name };
-        const result = await create(data);
-        if (result.error) {
-          Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
-          return;
-        }
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl vytvořen' });
-        await refresh();
-        onClose();
+        return;
       }
+
+      const data = { name };
+      const result = await create(data);
+      if (result.error) {
+        Toast.show({ type: 'error', text1: t('createform_error'), text2: result.message });
+        return;
+      }
+
+      Toast.show({ type: 'success', text1: t('createform_success') });
+      await refresh();
+      onClose();
     } catch (error) {
       console.log("Create form error:", error);
-      Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
+      Toast.show({ type: 'error', text1: t('createform_error'), text2: error.message });
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.containerBg }]}>
-      <Text style={[styles.label, { color: theme.label }]}>Jméno nákupního seznamu:</Text>
+      <Text style={[styles.label, { color: theme.label }]}>{t('createform_label')}</Text>
       <TextInput
         style={[styles.input, { backgroundColor: theme.inputBg, color: theme.inputText }]}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
-        placeholder="Zadej název..."
+        placeholder={t('createform_placeholder')}
         placeholderTextColor={theme.placeholder}
       />
 
@@ -77,11 +84,11 @@ export default function CreateForm({ onClose }) {
         onPress={handleCreate}
         disabled={!name}
       >
-        <Text style={[styles.buttonText, { color: theme.buttonText }]}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonText }]}>{t('createform_confirm')}</Text>
       </Pressable>
 
       <Pressable style={[styles.cancelButton, { borderColor: theme.cancelBorder }]} onPress={onClose}>
-        <Text style={[styles.cancelButtonText, { color: theme.cancelText }]}>Zrušit</Text>
+        <Text style={[styles.cancelButtonText, { color: theme.cancelText }]}>{t('createform_cancel')}</Text>
       </Pressable>
     </View>
   );

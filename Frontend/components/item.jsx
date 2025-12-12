@@ -7,11 +7,13 @@ import { useShopListDetail } from '../functions/contexts/shopListDetailContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function Item({ item, isArchived }) {
   const [modalVisible, setModalVisible] = useState(false);
   const { shopList, refresh } = useShopListDetail(); 
   const { colorMode } = useColorMode();
+  const { t } = useLanguage(); // 🆕
 
   if (!shopList) return <Text style={{ color: colorMode ? '#fff' : '#000' }}>Načítám...</Text>;
 
@@ -86,13 +88,15 @@ export default function Item({ item, isArchived }) {
       <Modal transparent visible={modalVisible} animationType="fade">
         <View style={[styles.modalOverlay, { backgroundColor: theme.overlayBg }]}>
           <View style={[styles.modalContent, { backgroundColor: theme.modalBg }]}>
-            <Text style={[styles.modalText, { color: theme.text }]}>Opravdu chcete smazat položku "{item.name}"?</Text>
+            <Text style={[styles.modalText, { color: theme.text }]}>
+              {t('item_delete_confirm').replace('{item}', item.name)}
+            </Text>
             <View style={styles.modalButtons}>
               <Pressable style={[styles.modalButtonConfirm, { backgroundColor: theme.btnConfirm }]} onPress={handleRemove}>
-                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>Ano</Text>
+                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>{t('yes')}</Text>
               </Pressable>
               <Pressable style={[styles.modalButtonCancel, { backgroundColor: theme.btnCancel }]} onPress={() => setModalVisible(false)}>
-                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>Ne</Text>
+                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>{t('no')}</Text>
               </Pressable>
             </View>
           </View>
@@ -101,6 +105,9 @@ export default function Item({ item, isArchived }) {
     </>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   box: { flexDirection: 'row', alignItems: 'center', padding: 12, marginBottom: 10, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 2 },

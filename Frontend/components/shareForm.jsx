@@ -6,11 +6,13 @@ import { useMemberList } from '../functions/contexts/memberListContext';
 import { isMock } from '../IS_MOCK';
 import { UsersMock } from '../UserMock';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext'; // 🆕
 
 export default function ShareForm({ shopListId, onClose }) {
   const [email, setEmail] = useState("");
   const { refreshMemberList } = useMemberList();
   const { colorMode } = useColorMode();
+  const { t } = useLanguage(); // 🆕
 
   const theme = {
     background: colorMode ? '#1E1E1E' : '#fff',
@@ -27,15 +29,15 @@ export default function ShareForm({ shopListId, onClose }) {
       if (isMock) {
         const user = UsersMock.find(u => u.email === email);
         if (!user) {
-          Toast.show({ type: "error", text1: "Chyba", text2: "Uživatel s tímto emailem neexistuje." });
+          Toast.show({ type: "error", text1: t('share_user_not_found') });
           return;
         }
         if (user.sharedShopList.includes(shopListId)) {
-          Toast.show({ type: "error", text1: "Chyba", text2: "Seznam je už nasdílen tomuto uživateli." });
+          Toast.show({ type: "error", text1: t('share_already_shared') });
           return;
         }
         user.sharedShopList.push(shopListId);
-        Toast.show({ type: "success", text1: "Hotovo", text2: "Seznam byl nasdílen." });
+        Toast.show({ type: "success", text1: t('share_success') });
         await refreshMemberList(shopListId);
         onClose();
         return;
@@ -45,11 +47,11 @@ export default function ShareForm({ shopListId, onClose }) {
       const result = await share(data);
 
       if (result.error) {
-        Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
+        Toast.show({ type: 'error', text1: t('share_user_not_found'), text2: result.message });
         return;
       }
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Seznam byl nasdílen' });
+      Toast.show({ type: 'success', text1: t('share_success') });
       await refreshMemberList(shopListId);
       onClose();
 
@@ -61,12 +63,12 @@ export default function ShareForm({ shopListId, onClose }) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.label, { color: theme.text }]}>Email:</Text>
+      <Text style={[styles.label, { color: theme.text }]}>{t('share_email_label')}</Text>
       <TextInput
         style={[styles.input, { color: theme.text, borderColor: theme.border }]}
         value={email}
         onChange={e => setEmail(e.nativeEvent.text)}
-        placeholder="Zadej email..."
+        placeholder={t('share_placeholder')}
         placeholderTextColor={theme.placeholder}
       />
 
@@ -75,15 +77,16 @@ export default function ShareForm({ shopListId, onClose }) {
         onPress={handleShare}
         disabled={!email}
       >
-        <Text style={[styles.buttonText, { color: theme.buttonTextPrimary }]}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonTextPrimary }]}>{t('share_confirm')}</Text>
       </Pressable>
 
       <Pressable style={[styles.cancelButton, { borderColor: theme.border }]} onPress={onClose}>
-        <Text style={[styles.cancelButtonText, { color: theme.buttonCancelText }]}>Zrušit</Text>
+        <Text style={[styles.cancelButtonText, { color: theme.buttonCancelText }]}>{t('share_cancel')}</Text>
       </Pressable>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

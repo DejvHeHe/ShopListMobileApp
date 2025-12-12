@@ -12,9 +12,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { register, login } from '../functions/userProvider';
 import Toast from 'react-native-toast-message';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function RegisterPage() {
-  const { colorMode } = useColorMode(); // true = dark, false = light
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
   const navigation = useNavigation();
 
   const [passwordVisibility, setPasswordVisibility] = useState(false);
@@ -25,10 +27,10 @@ export default function RegisterPage() {
   const [registerFailed, setRegisterFailed] = useState(false);
 
   const onRegister = async () => { 
-    if(password !== passwordAgain) {
+    if (password !== passwordAgain) {
       Toast.show({
         type: 'error',
-        text1: "Passwords don't match",
+        text1: t("passwords_not_match"),
         position: 'top',
       });
       setRegisterFailed(true);
@@ -39,11 +41,11 @@ export default function RegisterPage() {
     const data = { email, password, name };
     const registerResult = await register(data);
 
-    if(registerResult.error) {     
+    if (registerResult.error) {     
       Toast.show({
         type:"error",
-        text1:registerResult.message,
-        position:"top",    
+        text1: registerResult.message || t("register_error"),
+        position:"top"
       });
     } else {
       await login({ email, password });
@@ -51,7 +53,6 @@ export default function RegisterPage() {
     }
   };
 
-  // Dynamické barvy podle colorMode
   const themeStyles = {
     backgroundColor: colorMode ? "#121212" : "#fff",
     textColor: colorMode ? "#fff" : "#000",
@@ -64,28 +65,32 @@ export default function RegisterPage() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}>
+
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, { color: themeStyles.textColor }]}>Sign Up</Text>
+        <Text style={[styles.headerText, { color: themeStyles.textColor }]}>
+          {t("sign_up")}
+        </Text>
       </View>
 
       <View style={[styles.contentContainer, { backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor }]}>
+
         <TextInput
           style={[styles.input, { color: themeStyles.textColor, backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor }]}
-          placeholder="Name"
+          placeholder={t("name_placeholder")}
           placeholderTextColor={colorMode ? "#aaa" : "#555"}
           autoCapitalize="words"
           value={name}
-          onChange={e => setName(e.nativeEvent.text)}
+          onChange={(e) => setName(e.nativeEvent.text)}
         />
 
         <TextInput
           style={[styles.input, { color: themeStyles.textColor, backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor }]}
-          placeholder="E-mail"
+          placeholder={t("email_placeholder")}
           placeholderTextColor={colorMode ? "#aaa" : "#555"}
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
-          onChange={e => setEmail(e.nativeEvent.text)}
+          onChange={(e) => setEmail(e.nativeEvent.text)}
         />
 
         <View style={[
@@ -94,11 +99,11 @@ export default function RegisterPage() {
         ]}>
           <TextInput
             style={[styles.passwordInput, { color: themeStyles.textColor }]}
-            placeholder="Password"
+            placeholder={t("password_placeholder")}
             placeholderTextColor={colorMode ? "#aaa" : "#555"}
             secureTextEntry={!passwordVisibility}
             value={password}
-            onChange={e => setPassword(e.nativeEvent.text)}
+            onChange={(e) => setPassword(e.nativeEvent.text)}
           />
           <TouchableOpacity onPress={() => setPasswordVisibility(!passwordVisibility)}>
             <Ionicons
@@ -115,11 +120,11 @@ export default function RegisterPage() {
         ]}>
           <TextInput
             style={[styles.passwordInput, { color: themeStyles.textColor }]}
-            placeholder="Password again"
+            placeholder={t("password_again_placeholder")}
             placeholderTextColor={colorMode ? "#aaa" : "#555"}
             secureTextEntry={!passwordVisibility}
             value={passwordAgain}
-            onChange={e => setPasswordAgain(e.nativeEvent.text)}
+            onChange={(e) => setPasswordAgain(e.nativeEvent.text)}
           />
           <TouchableOpacity onPress={() => setPasswordVisibility(!passwordVisibility)}>
             <Ionicons
@@ -131,9 +136,13 @@ export default function RegisterPage() {
         </View>
 
         <Pressable style={[styles.buttonPrimary, { backgroundColor: themeStyles.buttonBackground }]} onPress={onRegister}>
-          <Text style={[styles.buttonText, { color: themeStyles.buttonTextColor }]}>Sign Up</Text>
+          <Text style={[styles.buttonText, { color: themeStyles.buttonTextColor }]}>
+            {t("signup_button")}
+          </Text>
         </Pressable>
+
       </View>
+
     </View>
   );
 }

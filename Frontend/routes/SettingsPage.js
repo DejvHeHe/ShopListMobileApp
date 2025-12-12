@@ -10,23 +10,24 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function SettingsPage() {
 
-    const { colorMode, switchMode } = useColorMode(); // true = dark, false = light
+    const { colorMode, switchMode } = useColorMode(); 
+    const { t, language, switchLanguage } = useLanguage(); // 🆕 přidáno
     const navigation = useNavigation();
 
     const handleLogout = async () => {
         try {
             await AsyncStorage.removeItem('token');
-            Alert.alert('Odhlášeno', 'Token byl smazán.');
+            Alert.alert(t("logout_alert_title"), t("logout_alert_message"));
             navigation.navigate('Login');
         } catch (err) {
             console.error('Chyba při mazání tokenu:', err);
         }
     };
 
-    // Dynamické barvy podle colorMode
     const themeStyles = {
         backgroundColor: colorMode ? "#121212" : "#fff",
         textColor: colorMode ? "#fff" : "#000",
@@ -37,16 +38,25 @@ export default function SettingsPage() {
 
     return (
         <View style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}>
-            <Text style={[styles.header, { color: themeStyles.textColor }]}>Settings</Text>
 
+            {/* Header */}
+            <Text style={[styles.header, { color: themeStyles.textColor }]}>
+                {t("settings_header")}
+            </Text>
+
+            {/* Logout */}
             <Pressable onPress={handleLogout} style={styles.row}>
                 <Ionicons name="log-out-outline" size={28} color="red" />
-                <Text style={[styles.text, { color: themeStyles.textColor }]}>Logout</Text>
+                <Text style={[styles.text, { color: themeStyles.textColor }]}>
+                    {t("logout")}
+                </Text>
             </Pressable>
 
+            {/* Color mode */}
             <View style={styles.row}>
-                <Text style={[styles.text, { color: themeStyles.textColor }]}>Color mode</Text>
-
+                <Text style={[styles.text, { color: themeStyles.textColor }]}>
+                    {t("color_mode")}
+                </Text>
                 <Switch 
                     value={colorMode}
                     onValueChange={switchMode}
@@ -54,6 +64,20 @@ export default function SettingsPage() {
                     thumbColor={themeStyles.switchThumbColor}
                 />
             </View>
+
+            {/* Language switch */}
+            <Pressable 
+                onPress={switchLanguage} 
+                style={[styles.row, { justifyContent: "flex-start", gap: 10 }]}
+            >
+                <Text style={[styles.text, { color: themeStyles.textColor }]}>
+                    {t("language")}:
+                </Text>
+                <Text style={[styles.text, { fontWeight: "bold", color: themeStyles.textColor }]}>
+                    {language.toUpperCase()}
+                </Text>
+            </Pressable>
+
         </View>
     );
 }

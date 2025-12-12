@@ -5,9 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { login } from '../functions/userProvider';
 import Toast from 'react-native-toast-message';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function LoginPage() {
-  const { colorMode } = useColorMode(); // true = dark, false = light
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
   const navigation = useNavigation();
 
   const [passwordVisibility, setPasswordVisibility] = useState(false);
@@ -23,13 +25,12 @@ export default function LoginPage() {
         type: "error",
         text1: loginResult.message,
         position: "top",
-      });    
+      });
     } else {
       navigation.navigate("Dashboard");
     }
   };
 
-  // Dynamické barvy podle colorMode
   const themeStyles = {
     backgroundColor: colorMode ? "#121212" : "#F5F5F5",
     containerBackground: colorMode ? "#1E1E1E" : "#fff",
@@ -46,13 +47,23 @@ export default function LoginPage() {
   return (
     <View style={[styles.container, { backgroundColor: themeStyles.backgroundColor }]}>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, { color: themeStyles.textColor }]}>Log in</Text>
+        <Text style={[styles.headerText, { color: themeStyles.textColor }]}>
+          {t("login_title")}
+        </Text>
       </View>
 
-      <View style={[styles.contentContainer, { backgroundColor: themeStyles.containerBackground, borderColor: themeStyles.borderColor }]}>
+      <View
+        style={[
+          styles.contentContainer,
+          { backgroundColor: themeStyles.containerBackground, borderColor: themeStyles.borderColor }
+        ]}
+      >
         <TextInput
-          style={[styles.input, { backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor, color: themeStyles.textColor }]}
-          placeholder='E-mail'
+          style={[
+            styles.input,
+            { backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor, color: themeStyles.textColor }
+          ]}
+          placeholder={t("email")}
           placeholderTextColor={colorMode ? "#aaa" : "#555"}
           keyboardType='email-address'
           autoCapitalize='none'
@@ -60,10 +71,15 @@ export default function LoginPage() {
           onChange={e => setEmail(e.nativeEvent.text)}
         />
 
-        <View style={[styles.passwordInputContainer, { backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor }]}>
+        <View
+          style={[
+            styles.passwordInputContainer,
+            { backgroundColor: themeStyles.inputBackground, borderColor: themeStyles.borderColor }
+          ]}
+        >
           <TextInput
             style={[styles.passwordInput, { color: themeStyles.textColor }]}
-            placeholder='Password'
+            placeholder={t("password")}
             placeholderTextColor={colorMode ? "#aaa" : "#555"}
             secureTextEntry={!passwordVisibility}
             value={password}
@@ -82,21 +98,29 @@ export default function LoginPage() {
           style={[styles.buttonPrimary, { backgroundColor: themeStyles.buttonPrimaryBackground }]}
           onPress={onLogin}
         >
-          <Text style={[styles.buttonText, { color: themeStyles.buttonPrimaryText }]}>Log in</Text>
+          <Text style={[styles.buttonText, { color: themeStyles.buttonPrimaryText }]}>
+            {t("login_button")}
+          </Text>
         </Pressable>
       </View>
 
       <View style={styles.footer}>
         <Pressable
-          style={[styles.buttonSecondary, { backgroundColor: themeStyles.buttonSecondaryBackground, borderColor: themeStyles.borderColor }]}
+          style={[
+            styles.buttonSecondary,
+            { backgroundColor: themeStyles.buttonSecondaryBackground, borderColor: themeStyles.borderColor }
+          ]}
           onPress={() => navigation.navigate('Register')}
         >
-          <Text style={[styles.secondaryButtonText, { color: themeStyles.buttonSecondaryText }]}>Create account</Text>
+          <Text style={[styles.secondaryButtonText, { color: themeStyles.buttonSecondaryText }]}>
+            {t("register_redirect")}
+          </Text>
         </Pressable>
       </View>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

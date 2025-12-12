@@ -11,6 +11,7 @@ import { useArchivedShopList } from '../functions/contexts/listArchivedContext';
 import Toast from 'react-native-toast-message';
 import { ShopListDetailProvider } from "../functions/contexts/shopListDetailContext";
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 
@@ -22,7 +23,8 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   const { refresh } = useShopList();
   const { refreshArchived } = useArchivedShopList();
   const { listFunction, setListFunction } = useListFunction();
-  const { colorMode } = useColorMode(); // 🆕 dark/light mode
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
 
   const themeStyles = {
     boxBackground: colorMode ? "#1E1E1E" : "#fff",
@@ -41,26 +43,20 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   const handleArchive = async (e) => {
     e.stopPropagation();
     try {
+      const successText = shopList.isArchived 
+        ? t('archived_text_unarchived') 
+        : t('archived_text_archived');
+
       if (isMock) {
         ShopListsMock.forEach((element) => {
           if (element._id === shopList._id) element.isArchived = !element.isArchived;
         });
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({
-          type: 'success',
-          text1: 'Hotovo',
-          text2: shopList.isArchived ? 'ShopList odstraněn z archivu' : 'ShopList archivován',
-        });
+        Toast.show({ type: 'success', text1: t('archived_done'), text2: successText });
       } else {
         await setArchived({ shopListId: shopList._id });
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({
-          type: 'success',
-          text1: 'Hotovo',
-          text2: shopList.isArchived ? 'ShopList odstraněn z archivu' : 'ShopList archivován',
-        });
+        Toast.show({ type: 'success', text1: t('archived_done'), text2: successText });
       }
     } catch (err) {
       console.log("Set archived error:", err);
@@ -73,17 +69,15 @@ export default function ShopList({ shopList, listFunctionTobe }) {
         const index = ShopListsMock.findIndex(l => l._id === shopList._id);
         if (index !== -1) ShopListsMock.splice(index, 1);
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'ShopList byl smazán' });
+        Toast.show({ type: 'success', text1: t('deleted_done'), text2: t('deleted_text') });
       } else {
         await remove({ shopListId: shopList._id });
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'ShopList byl smazán' });
+        Toast.show({ type: 'success', text1: t('deleted_done'), text2: t('deleted_text') });
       }
     } catch (err) {
       console.log('Delete error:', err);
-      Toast.show({ type: 'error', text1: 'Chyba', text2: err.message });
+      Toast.show({ type: 'error', text1: t('error'), text2: err.message });
     }
     setConfirmDelete(false);
   };
@@ -117,7 +111,7 @@ export default function ShopList({ shopList, listFunctionTobe }) {
 
         <Text style={[styles.name, { color: themeStyles.textColor }]}>{shopList.name}</Text>
         <Text style={[styles.details, { color: themeStyles.detailsColor }]}>
-          Počet položek: {shopList.items ? shopList.items.length : 0}
+          {t('items_count')}: {shopList.items ? shopList.items.length : 0}
         </Text>
       </Pressable>
 
@@ -141,15 +135,15 @@ export default function ShopList({ shopList, listFunctionTobe }) {
         style={styles.confirmModalContainer}
       >
         <View style={[styles.confirmBox, { backgroundColor: themeStyles.confirmBackground }]}>
-          <Text style={[styles.confirmTitle, { color: themeStyles.confirmText }]}>Opravdu chcete smazat?</Text>
+          <Text style={[styles.confirmTitle, { color: themeStyles.confirmText }]}>{t('confirm_delete_title')}</Text>
 
           <View style={styles.confirmButtons}>
             <Pressable onPress={confirmDeleteAction} style={[styles.btn, styles.btnYes]}>
-              <Text style={styles.btnText}>Ano</Text>
+              <Text style={styles.btnText}>{t('yes')}</Text>
             </Pressable>
 
             <Pressable onPress={() => setConfirmDelete(false)} style={[styles.btn, { backgroundColor: themeStyles.btnNo }]}>
-              <Text style={styles.btnText}>Ne</Text>
+              <Text style={styles.btnText}>{t('no')}</Text>
             </Pressable>
           </View>
         </View>
@@ -157,6 +151,7 @@ export default function ShopList({ shopList, listFunctionTobe }) {
     </>
   );
 }
+
 
 const styles = StyleSheet.create({
   box: {

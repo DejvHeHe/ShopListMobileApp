@@ -5,15 +5,17 @@ import Dashboard from '../components/dashboard';
 import DashboardShared from '../components/dashboardShared';
 import { useUserId } from '../functions/contexts/userIdContext';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function DashboardPage() {
   const { getUserId } = useUserId();
-  const { colorMode } = useColorMode(); // true = dark, false = light
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchUserId = async () => {
       try {
-        await getUserId();        
+        await getUserId();
       } catch (err) {
         console.log('❌ Chyba při načítání userId:', err);
       }
@@ -32,10 +34,16 @@ export default function DashboardPage() {
     <SafeAreaView style={[styles.safeContainer, { backgroundColor: themeStyles.backgroundColor }]}>
       <View style={styles.container}>
         <View style={styles.content}>
-          <Text style={[styles.header, { color: themeStyles.headerColor }]}>Moje ShopListy</Text>
+          <Text style={[styles.header, { color: themeStyles.headerColor }]}>
+            {t("dashboard_my_lists")}
+          </Text>
+
           <Dashboard />
 
-          <Text style={[styles.subHeader, { color: themeStyles.subHeaderColor }]}>Sdílené ShopListy</Text>
+          <Text style={[styles.subHeader, { color: themeStyles.subHeaderColor }]}>
+            {t("dashboard_shared_lists")}
+          </Text>
+
           <DashboardShared />
         </View>
 

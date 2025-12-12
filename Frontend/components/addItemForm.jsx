@@ -6,12 +6,14 @@ import { useShopListDetail } from '../functions/contexts/shopListDetailContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext'; // 🆕
 
 export default function AddItemForm({ onClose }) {
   const [name, setName] = useState("");
   const [count, setCount] = useState(1);
   const { shopList, refresh } = useShopListDetail();
   const { colorMode } = useColorMode();
+  const { t } = useLanguage(); // 🆕
 
   const theme = {
     containerBg: colorMode ? '#222' : '#fff',
@@ -27,7 +29,7 @@ export default function AddItemForm({ onClose }) {
 
   const handleAddItem = async () => {
     if (count < 1) {
-      Toast.show({ type: "error", text1: "Chybný počet", text2: "Počet musí být alespoň 1." });
+      Toast.show({ type: "error", text1: t('additemform_error'), text2: t('additemform_invalid_count') });
       return;
     }
 
@@ -39,7 +41,7 @@ export default function AddItemForm({ onClose }) {
           const lastId = list.items.length > 0 ? Math.max(...list.items.map(i => i._id)) : 0;
           list.items.push({ _id: lastId + 1, name, count, state: "unchecked" });
         }
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán (mock)' });
+        Toast.show({ type: 'success', text1: t('additemform_success_mock') });
         await refresh();
         onClose();
         return;
@@ -49,32 +51,32 @@ export default function AddItemForm({ onClose }) {
       const result = await addItem(data);
 
       if (result.error) {
-        Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
+        Toast.show({ type: 'error', text1: t('additemform_error'), text2: result.message });
         return;
       }
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Item byl přidán' });
+      Toast.show({ type: 'success', text1: t('additemform_success') });
       await refresh();
       onClose();
     } catch (error) {
       console.log("AddItemForm error:", error);
-      Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
+      Toast.show({ type: 'error', text1: t('additemform_error'), text2: error.message });
     }
   };
 
-  if (!shopList) return <Text style={{ color: theme.label }}>Načítám...</Text>;
+  if (!shopList) return <Text style={{ color: theme.label }}>{t('additemform_loading')}</Text>;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.containerBg }]}>
-      <Text style={[styles.label, { color: theme.label }]}>Jméno položky:</Text>
+      <Text style={[styles.label, { color: theme.label }]}>{t('additemform_label_name')}</Text>
       <TextInput
         style={[styles.input, { backgroundColor: theme.inputBg, color: theme.inputText }]}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
-        placeholder="Zadej název..."
+        placeholder={t('additemform_placeholder_name')}
         placeholderTextColor={theme.placeholder}
       />
-      <Text style={[styles.label, { color: theme.label }]}>Počet:</Text>
+      <Text style={[styles.label, { color: theme.label }]}>{t('additemform_label_count')}</Text>
       <TextInput
         style={[styles.input, { backgroundColor: theme.inputBg, color: theme.inputText }]}
         value={count.toString()}
@@ -90,11 +92,11 @@ export default function AddItemForm({ onClose }) {
         onPress={handleAddItem}
         disabled={!name}
       >
-        <Text style={[styles.buttonText, { color: theme.buttonText }]}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonText }]}>{t('additemform_confirm')}</Text>
       </Pressable>
 
       <Pressable style={[styles.cancelButton, { borderColor: theme.cancelBorder }]} onPress={onClose}>
-        <Text style={[styles.cancelButtonText, { color: theme.cancelText }]}>Zrušit</Text>
+        <Text style={[styles.cancelButtonText, { color: theme.cancelText }]}>{t('additemform_cancel')}</Text>
       </Pressable>
     </View>
   );

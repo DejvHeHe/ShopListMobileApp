@@ -20,6 +20,7 @@ import { MemberListProvider } from './functions/contexts/memberListContext';
 import { ArchivedShopListProvider } from './functions/contexts/listArchivedContext'; 
 import { ShopListDetailProvider } from './functions/contexts/shopListDetailContext'; 
 import { ColorModeProvider } from './functions/contexts/colorModeContext';
+import { LanguageProvider } from './functions/contexts/languageContext';
 
 import { isMock } from './IS_MOCK';
 
@@ -46,36 +47,38 @@ export default function App() {
 
   return (
     <ColorModeProvider>
-      <UserIdProvider>
-        <ListFunctionProvider>
-          <ShopListProvider>
-            <SharedShopListProvider>
-              <ArchivedShopListProvider> 
-                <MemberListProvider>
-                  <ShopListDetailProvider> 
-                    <NavigationContainer>
-                      <Stack.Navigator
-                        initialRouteName={initialRouteName}
-                        screenOptions={{ headerShown: false }}
-                      >
-                        <Stack.Screen name="Login" component={LoginPage} />
-                        <Stack.Screen name="Register" component={RegisterPage} />
-                        <Stack.Screen name="Dashboard" component={DashboardPage} />
-                        <Stack.Screen name="Archive" component={ArchivePage} />
-                        <Stack.Screen name="MockLogin" component={MockLoginPage} />
-                        <Stack.Screen name="Settings" component={SettingsPage} />
-                      </Stack.Navigator>
+      <LanguageProvider> {/* 🆕 LanguageProvider */}
+        <UserIdProvider>
+          <ListFunctionProvider>
+            <ShopListProvider>
+              <SharedShopListProvider>
+                <ArchivedShopListProvider> 
+                  <MemberListProvider>
+                    <ShopListDetailProvider> 
+                      <NavigationContainer>
+                        <Stack.Navigator
+                          initialRouteName={initialRouteName}
+                          screenOptions={{ headerShown: false }}
+                        >
+                          <Stack.Screen name="Login" component={LoginPage} />
+                          <Stack.Screen name="Register" component={RegisterPage} />
+                          <Stack.Screen name="Dashboard" component={DashboardPage} />
+                          <Stack.Screen name="Archive" component={ArchivePage} />
+                          <Stack.Screen name="MockLogin" component={MockLoginPage} />
+                          <Stack.Screen name="Settings" component={SettingsPage} />
+                        </Stack.Navigator>
 
-                      <Toast />
-                      <StatusBar style="auto" />
-                    </NavigationContainer>
-                  </ShopListDetailProvider>
-                </MemberListProvider>
-              </ArchivedShopListProvider>
-            </SharedShopListProvider>
-          </ShopListProvider>
-        </ListFunctionProvider>
-      </UserIdProvider>
+                        <Toast />
+                        <StatusBar style="auto" />
+                      </NavigationContainer>
+                    </ShopListDetailProvider>
+                  </MemberListProvider>
+                </ArchivedShopListProvider>
+              </SharedShopListProvider>
+            </ShopListProvider>
+          </ListFunctionProvider>
+        </UserIdProvider>
+      </LanguageProvider>
     </ColorModeProvider>
   );
 }

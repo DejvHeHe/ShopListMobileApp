@@ -12,13 +12,15 @@ import ShareForm from './shareForm';
 import { useUserId } from '../functions/contexts/userIdContext';
 import { useShopListDetail } from '../functions/contexts/shopListDetailContext';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext'; // 🆕 
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function ShopListDetail({ onClose }) {
   const { userId } = useUserId();
   const { shopList, status, refresh } = useShopListDetail();
-  const { colorMode } = useColorMode(); // 🆕 
+  const { colorMode } = useColorMode(); 
+  const { t } = useLanguage(); // 🆕
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isUpdateNameOpen, setUpdateNameOpen] = useState(false);
@@ -60,7 +62,7 @@ export default function ShopListDetail({ onClose }) {
   if (status === "loading" || !shopList) {
     return (
       <Text style={{ color: theme.text, textAlign: "center", marginTop: 20 }}>
-        Načítám seznam...
+        {t('loading_list')}
       </Text>
     );
   }
@@ -73,7 +75,9 @@ export default function ShopListDetail({ onClose }) {
       <View style={styles.handle} />
 
       <View style={styles.titleRow}>
-        <Text style={[styles.modalTitle, { color: theme.text }]}>Detail seznamu: {shopList.name}</Text>
+        <Text style={[styles.modalTitle, { color: theme.text }]}>
+          {t('detail_title')}{shopList.name}
+        </Text>
 
         {isOwner && !isArchived && (
           <Pressable style={styles.iconButton} onPress={() => setUpdateNameOpen(true)}>
@@ -104,21 +108,21 @@ export default function ShopListDetail({ onClose }) {
       <View style={styles.buttonRow}>
         {!isArchived && (
           <Pressable style={[styles.primaryButton, { backgroundColor: theme.buttonPrimary }]} onPress={() => setIsAddOpen(true)}>
-            <Text style={styles.primaryButtonText}>+ Přidat položku</Text>
+            <Text style={styles.primaryButtonText}>{t('add_item')}</Text>
           </Pressable>
         )}
 
         {isOwner && !isArchived && (
           <Pressable style={[styles.secondaryButton, { backgroundColor: theme.buttonSecondary }]} onPress={() => setShareOpen(true)}>
             <Ionicons name="share-social-outline" size={18} color={theme.text} />
-            <Text style={[styles.secondaryButtonText, { color: theme.text }]}>Nadílet seznam</Text>
+            <Text style={[styles.secondaryButtonText, { color: theme.text }]}>{t('share_list')}</Text>
           </Pressable>
         )}
       </View>
 
       <ScrollView style={styles.itemsContainer}>
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Položky:</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('items_header')}</Text>
 
           <Pressable onPress={() => setIsFilterActive(p => !p)} style={styles.iconButton}>
             <Ionicons
@@ -136,11 +140,11 @@ export default function ShopListDetail({ onClose }) {
               item={item}
               shopListId={shopList._id}
               isArchived={isArchived}
-              colorMode={colorMode} // 🆕 předat barvy do item
+              colorMode={colorMode}
             />
           ))
         ) : (
-          <Text style={{ color: theme.itemText, textAlign: "center", marginTop: 15 }}>Žádné položky</Text>
+          <Text style={{ color: theme.itemText, textAlign: "center", marginTop: 15 }}>{t('no_items')}</Text>
         )}
       </ScrollView>
 
@@ -175,6 +179,7 @@ export default function ShopListDetail({ onClose }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   modalContent: {

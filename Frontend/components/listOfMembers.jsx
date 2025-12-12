@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, ScrollView, Modal, ActivityIndicator } from 'react-native';
+import { Pressable, StyleSheet, View, Text, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { removeFromShare } from '../functions/shopListProvider';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { useSharedShopList } from '../functions/contexts/sharedShopListContext';
 import { isMock } from '../IS_MOCK';
 import { UsersMock } from '../UserMock';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function ListOfMembers({ shopListId, onClose, ownerId }) {
   const { memberList, refreshMemberList, status } = useMemberList();  
@@ -16,6 +17,7 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
   const { userId } = useUserId();
   const { refreshShared } = useSharedShopList();
   const { colorMode } = useColorMode();
+  const { t } = useLanguage();
 
   const theme = {
     background: colorMode ? '#1E1E1E' : '#fff',
@@ -67,17 +69,17 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
   return (
     <>
       <View style={[styles.container, { backgroundColor: theme.container }]}>
-        <Text style={[styles.title, { color: theme.text }]}>Sdíleno s:</Text>
+        <Text style={[styles.title, { color: theme.text }]}>{t('members_shared_with')}</Text>
 
         {status === "loading" && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.text} />
-            <Text style={[styles.loadingText, { color: theme.textSecondary }]}>Načítám členy…</Text>
+            <Text style={[styles.loadingText, { color: theme.textSecondary }]}>{t('members_loading')}</Text>
           </View>
         )}
 
         {status === "ready" && memberList?.length === 0 && (
-          <Text style={[styles.noMembersText, { color: theme.textSecondary }]}>Žádní členové</Text>
+          <Text style={[styles.noMembersText, { color: theme.textSecondary }]}>{t('members_none')}</Text>
         )}
 
         {status === "ready" && memberList?.length > 0 && (
@@ -104,14 +106,14 @@ export default function ListOfMembers({ shopListId, onClose, ownerId }) {
         <View style={[styles.modalOverlay, { backgroundColor: theme.modalBackground }]}>
           <View style={[styles.modalContent, { backgroundColor: theme.modalContent }]}>
             <Text style={[styles.modalText, { color: theme.text }]}>
-              Opravdu chcete odebrat {selectedMember?.name || "tohoto uživatele"}?
+              {t('members_remove_confirm').replace("{member}", selectedMember?.name || "")}
             </Text>
             <View style={styles.modalButtons}>
               <Pressable style={[styles.modalButtonConfirm, { backgroundColor: theme.btnConfirm }]} onPress={handleUnshare}>
-                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>Ano</Text>
+                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>{t('yes')}</Text>
               </Pressable>
               <Pressable style={[styles.modalButtonCancel, { backgroundColor: theme.btnCancel }]} onPress={() => setIsOpen(false)}>
-                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>Ne</Text>
+                <Text style={[styles.modalButtonText, { color: theme.btnText }]}>{t('no')}</Text>
               </Pressable>
             </View>
           </View>

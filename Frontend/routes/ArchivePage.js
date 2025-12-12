@@ -4,10 +4,12 @@ import React from 'react';
 import Footer from '../components/footer';
 import DashboardShared from '../components/dashboardArchived';
 import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function ArchivePage() {
   const navigation = useNavigation();
-  const { colorMode } = useColorMode(); // true = dark, false = light
+  const { colorMode } = useColorMode(); 
+  const { t } = useLanguage();
 
   const themeStyles = {
     backgroundColor: colorMode ? "#121212" : "#fff",
@@ -19,7 +21,10 @@ export default function ArchivePage() {
     <SafeAreaView style={[styles.safeContainer, { backgroundColor: themeStyles.backgroundColor }]}>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={[styles.header, { color: themeStyles.headerColor }]}>Archivované ShopListy</Text>
+          <Text style={[styles.header, { color: themeStyles.headerColor }]}>
+            {t("archive_header")}
+          </Text>
+
           <DashboardShared />
         </ScrollView>
 
