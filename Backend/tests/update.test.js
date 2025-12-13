@@ -1,26 +1,45 @@
 const request = require("supertest");
-
+require("dotenv").config();
 const url = "http://localhost:5000";
+const AUTH_TOKEN = process.env.AUTH_TOKEN;
 const dtoIn={shopListId: "692ac5e2db30dca6d33a9ae6",
   newName: "Nový název seznamu",}
 
 describe("Tento test testuje POST /shoplist/update", () => {
     
-    test("Happy day scénář ", async () => {
-        const res = await request(url)
-            .post("/shoplist/update")
-            .set(
-                "Authorization",
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGY1MGM1MzVhYTA5NWNmNzNhMTdmZGIiLCJpYXQiOjE3NjQ3NjQwNzEsImV4cCI6MTc2NzM1NjA3MX0.w1CIPeaU54euwt_07cB-bJa_kN6cdUaoe-qO_xAcLdE"
-            )
-            .send(dtoIn)
-        
-        expect(res.status).toBe(200);
-        
-       
+    test("Happy day scénář – create → update → remove", async () => {
+        // 1️⃣ CREATE
+        const createRes = await request(url)
+        .post("/shoplist/create")
+        .set("Authorization", AUTH_TOKEN)
+        .send({ name: "Old name" });
 
-        
-    });
+        expect(createRes.status).toBe(201);
+        expect(createRes.body).toHaveProperty("insertedId");
+
+        const shopListId = createRes.body.insertedId;
+
+        // 2️⃣ UPDATE
+        const updateRes = await request(url)
+        .post("/shoplist/update")
+        .set("Authorization", AUTH_TOKEN)
+        .send({
+            shopListId,
+            newName: "New name"
+        });
+
+        expect(updateRes.status).toBe(200);
+        expect(updateRes.body.result.matchedCount).toBe(1);
+
+        // 3️⃣ REMOVE – CLEANUP
+        const removeRes = await request(url)
+        .post("/shoplist/remove")
+        .set("Authorization", AUTH_TOKEN)
+        .send({ shopListId });
+
+        expect(removeRes.status).toBe(200);
+        expect(removeRes.body.result.deletedCount).toBe(1);
+   });
     test("Nevalidní dtoIn ", async () => {
         const res = await request(url)
             .post("/shoplist/update")

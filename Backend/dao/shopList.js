@@ -126,31 +126,45 @@ async function uncheckItem(shopListId, itemId) {
 async function remove(shopListId) {
   try {
     await ensureConnection();
-    return await client
+
+    const result = await client
       .db("ShopListMobileApp")
       .collection("shopList")
       .deleteOne({ _id: new ObjectId(shopListId) });
+
+    return {
+      shopListId,
+      result
+    };
   } catch (err) {
     console.error("Remove shopList error:", err);
-    return { success: false, error: err };
+    throw err;
   }
 }
+
 
 async function update(shopListId, newName) {
   try {
     await ensureConnection();
-    return await client
+
+    const result = await client
       .db("ShopListMobileApp")
       .collection("shopList")
       .updateOne(
         { _id: new ObjectId(shopListId), isArchived: false },
         { $set: { name: newName } }
       );
+
+    return {
+      shopListId,
+      result
+    };
   } catch (err) {
     console.error("Update shopList error:", err);
-    return { success: false, error: err };
+    throw err;
   }
 }
+
 
 async function editItem(shopListId, itemId, newName, newCount) {
   try {
