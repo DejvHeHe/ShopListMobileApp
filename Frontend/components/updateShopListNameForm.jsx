@@ -5,10 +5,23 @@ import Toast from 'react-native-toast-message';
 import { useShopList } from '../functions/contexts/shopListContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
+import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext'; // 🆕 
 
 export default function UpdateShopListNameForm({ shopList, onClose }) {
   const [name, setName] = useState("");
   const { refresh } = useShopList();
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage(); // 🆕  
+
+  const theme = {
+    background: colorMode ? '#1E1E1E' : '#fff',
+    text: colorMode ? '#fff' : '#000',
+    border: colorMode ? '#555' : '#000',
+    buttonPrimary: colorMode ? '#00bfff' : '#000',
+    buttonTextPrimary: '#fff',
+    buttonCancelText: colorMode ? '#fff' : '#000',
+  };
 
   const handleUpdateShopListName = async () => {
     try {
@@ -16,7 +29,7 @@ export default function UpdateShopListNameForm({ shopList, onClose }) {
         const mockList = ShopListsMock.find(l => l._id === shopList._id);
         if (mockList) mockList.name = name;
 
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jméno bylo aktualizováno (mock)' });
+        Toast.show({ type: 'success', text1: t('update_success_mock') });
         await refresh();
         onClose();
         return;
@@ -26,38 +39,38 @@ export default function UpdateShopListNameForm({ shopList, onClose }) {
       const result = await update(data);
 
       if (result.error) {
-        Toast.show({ type: 'error', text1: 'Chyba', text2: result.message });
+        Toast.show({ type: 'error', text1: t('update_error'), text2: result.message });
         return;
       }
 
-      Toast.show({ type: 'success', text1: 'Hotovo', text2: 'Jméno bylo aktualizováno' });
+      Toast.show({ type: 'success', text1: t('update_success') });
       await refresh();
       onClose();
     } catch (error) {
       console.log("UpdateShopListNameForm error:", error);
-      Toast.show({ type: 'error', text1: 'Chyba', text2: error.message });
+      Toast.show({ type: 'error', text1: t('update_error'), text2: error.message });
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Nové jméno:</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.label, { color: theme.text }]}>{t('update_label')}</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: theme.text, borderColor: theme.border }]}
         value={name}
         onChange={e => setName(e.nativeEvent.text)}
       />
       
       <Pressable
-        style={[styles.button, !name && { opacity: 0.5 }]}
+        style={[styles.button, !name && { opacity: 0.5 }, { backgroundColor: theme.buttonPrimary }]}
         onPress={handleUpdateShopListName}
         disabled={!name}
       >
-        <Text style={styles.buttonText}>Potvrdit</Text>
+        <Text style={[styles.buttonText, { color: theme.buttonTextPrimary }]}>{t('update_confirm')}</Text>
       </Pressable>
 
-      <Pressable style={styles.cancelButton} onPress={onClose}>
-        <Text style={styles.cancelButtonText}>Zrušit</Text>
+      <Pressable style={[styles.cancelButton, { borderColor: theme.border }]} onPress={onClose}>
+        <Text style={[styles.cancelButtonText, { color: theme.buttonCancelText }]}>{t('update_cancel')}</Text>
       </Pressable>
     </View>
   );
@@ -66,7 +79,6 @@ export default function UpdateShopListNameForm({ shopList, onClose }) {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 12,
     margin: 20,
     shadowColor: '#000',
@@ -78,39 +90,32 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#000',
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
     fontSize: 16,
     marginBottom: 20,
-    color: '#000',
   },
   button: {
-    backgroundColor: '#000',
     paddingVertical: 14,
     borderRadius: 10,
     marginBottom: 10,
   },
   buttonText: {
-    color: '#fff',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',
   },
   cancelButton: {
     borderWidth: 1,
-    borderColor: '#000',
     paddingVertical: 14,
     borderRadius: 10,
   },
   cancelButtonText: {
-    color: '#000',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '600',

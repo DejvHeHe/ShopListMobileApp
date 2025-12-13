@@ -1,44 +1,42 @@
-import { Pressable, StyleSheet, View, Modal, Alert } from 'react-native';
+import { Pressable, StyleSheet, View, Modal } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CreateFrom from './createForm';
+import { useColorMode } from '../functions/contexts/colorModeContext';
 
 export default function Footer() {
   const navigation = useNavigation();
   const [isOpen, setIsOpen] = useState(false);
+  const { colorMode } = useColorMode(); // true = dark, false = light
 
-  // Funkce pro smazání tokenu
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('token');
-      Alert.alert('Odhlášeno', 'Token byl smazán.');
-      navigation.navigate('Login'); // případně přesměruj na login screen
-    } catch (err) {
-      console.error('Chyba při mazání tokenu:', err);
-    }
+  const themeStyles = {
+    footerBackground: colorMode ? "#1E1E1E" : "#fff",
+    borderColor: colorMode ? "#444" : "#ccc",
+    iconColor: colorMode ? "#00bfff" : "#000",
+    modalOverlay: colorMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.5)",
   };
 
   return (
     <>
-      <View style={styles.footer}>           
+      <View style={[styles.footer, { backgroundColor: themeStyles.footerBackground, borderColor: themeStyles.borderColor }]}>           
 
         <Pressable onPress={() => navigation.navigate('Archive')}>
-          <Ionicons name="archive-outline" size={28} color="black" />
+          <Ionicons name="archive-outline" size={28} color={themeStyles.iconColor} />
         </Pressable>
 
         <Pressable onPress={() => navigation.navigate('Dashboard')}>
-          <Ionicons name="home-outline" size={28} color="black" />
+          <Ionicons name="home-outline" size={28} color={themeStyles.iconColor} />
         </Pressable>
         
         <Pressable onPress={() => setIsOpen(true)}>
-          <Ionicons name="add-circle-outline" size={36} color="black" />
+          <Ionicons name="add-circle-outline" size={36} color={themeStyles.iconColor} />
         </Pressable>
 
-        <Pressable onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={28} color="red" />
+        <Pressable onPress={() => navigation.navigate('Settings')}>
+          <Ionicons name="settings-outline" size={28} color={themeStyles.iconColor} />
         </Pressable>
+
       </View>
 
       {/* Modal Wrapper */}
@@ -48,7 +46,7 @@ export default function Footer() {
         visible={isOpen}
         onRequestClose={() => setIsOpen(false)}
       >
-        <View style={styles.modalBackground}>
+        <View style={[styles.modalBackground, { backgroundColor: themeStyles.modalOverlay }]}>
           <CreateFrom onClose={() => setIsOpen(false)} />
         </View>
       </Modal>
@@ -63,13 +61,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
   },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 });

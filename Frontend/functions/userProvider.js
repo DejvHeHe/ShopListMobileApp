@@ -21,7 +21,7 @@ export async function register(data) {
 
 export async function login(data) {
   try {
-    console.log("Dpošel jsem do get API")
+    console.log("Došel jsem do get API")
     const response = await fetch("http://:5000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

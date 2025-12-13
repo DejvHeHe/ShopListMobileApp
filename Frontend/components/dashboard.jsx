@@ -2,28 +2,38 @@ import { ScrollView, Text, StyleSheet, View, ActivityIndicator } from 'react-nat
 import React, { useEffect } from 'react';
 import ShopList from './shopList';
 import { useShopList } from '../functions/contexts/shopListContext';
+import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function Dashboard() {
   const { shopLists, refresh, status } = useShopList();
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
+
+  const theme = {
+    background: colorMode ? '#1E1E1E' : '#fff',
+    text: colorMode ? '#fff' : '#444',
+    textSecondary: colorMode ? '#ccc' : '#666',
+  };
 
   useEffect(() => {
     refresh();
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <ScrollView contentContainerStyle={[styles.scrollContainer, { backgroundColor: theme.background }]}>
 
       {/* LOADING */}
       {status === "loading" && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#000" />
-          <Text style={styles.loadingText}>Načítám seznamy…</Text>
+          <ActivityIndicator size="large" color={theme.text} />
+          <Text style={[styles.loadingText, { color: theme.textSecondary }]}>{t('dashboard_loading')}</Text>
         </View>
       )}
 
       {/* PRÁZDNÝ STAV */}
       {status === "ready" && (!shopLists || shopLists.length === 0) && (
-        <Text style={styles.emptyText}>Žádné vaše seznamy</Text>
+        <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('dashboard_empty')}</Text>
       )}
 
       {/* OBSAH */}
@@ -41,7 +51,7 @@ export default function Dashboard() {
 
 const styles = StyleSheet.create({
   scrollContainer: { paddingVertical: 20, paddingHorizontal: 10 },
-  emptyText: { textAlign: 'center', marginTop: 50, color: '#666', fontSize: 18 },
+  emptyText: { textAlign: 'center', marginTop: 50, fontSize: 18 },
 
   loadingContainer: {
     marginTop: 50,
@@ -49,7 +59,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    color: '#444',
     fontSize: 16,
   },
 

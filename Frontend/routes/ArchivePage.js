@@ -3,19 +3,32 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Footer from '../components/footer';
 import DashboardShared from '../components/dashboardArchived';
+import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 
 export default function ArchivePage() {
   const navigation = useNavigation();
+  const { colorMode } = useColorMode(); 
+  const { t } = useLanguage();
+
+  const themeStyles = {
+    backgroundColor: colorMode ? "#121212" : "#fff",
+    headerColor: colorMode ? "#fff" : "#000",
+    borderColor: colorMode ? "#444" : "#eee",
+  };
 
   return (
-    <SafeAreaView style={styles.safeContainer}>
+    <SafeAreaView style={[styles.safeContainer, { backgroundColor: themeStyles.backgroundColor }]}>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.header}>Archivované ShopListy</Text>
+          <Text style={[styles.header, { color: themeStyles.headerColor }]}>
+            {t("archive_header")}
+          </Text>
+
           <DashboardShared />
         </ScrollView>
 
-        <View style={styles.footerWrapper}>
+        <View style={[styles.footerWrapper, { borderTopColor: themeStyles.borderColor }]}>
           <Footer />
         </View>
       </View>
@@ -26,7 +39,6 @@ export default function ArchivePage() {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
@@ -41,7 +53,6 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#000',
     marginBottom: 20,
     textTransform: 'uppercase',
     textAlign: 'center',
@@ -49,6 +60,5 @@ const styles = StyleSheet.create({
   footerWrapper: {
     paddingBottom: 20,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
   },
 });

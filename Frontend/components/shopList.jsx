@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View, Text } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-native-modal';
 import ShopListDetail from './shopListDetail';
@@ -9,9 +9,9 @@ import { useListFunction } from '../functions/contexts/listFunctionContext';
 import { useUserId } from '../functions/contexts/userIdContext';
 import { useArchivedShopList } from '../functions/contexts/listArchivedContext';
 import Toast from 'react-native-toast-message';
-
 import { ShopListDetailProvider } from "../functions/contexts/shopListDetailContext";
-
+import { useColorMode } from '../functions/contexts/colorModeContext';
+import { useLanguage } from '../functions/contexts/languageContext';
 import { isMock } from '../IS_MOCK';
 import { ShopListsMock } from '../ShopListMock';
 
@@ -23,6 +23,19 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   const { refresh } = useShopList();
   const { refreshArchived } = useArchivedShopList();
   const { listFunction, setListFunction } = useListFunction();
+  const { colorMode } = useColorMode();
+  const { t } = useLanguage();
+
+  const themeStyles = {
+    boxBackground: colorMode ? "#1E1E1E" : "#fff",
+    boxPressed: colorMode ? "#333" : "#e0e0e0",
+    textColor: colorMode ? "#fff" : "#111",
+    detailsColor: colorMode ? "#ccc" : "#555",
+    iconColor: colorMode ? "#00bfff" : "#555",
+    confirmBackground: colorMode ? "#2A2A2A" : "#fff",
+    confirmText: colorMode ? "#fff" : "#111",
+    btnNo: colorMode ? "#888" : "#555",
+  };
 
   const handleOpen = () => setIsOpen(!isOpen);
   const handleDelete = () => setConfirmDelete(true);
@@ -30,32 +43,20 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   const handleArchive = async (e) => {
     e.stopPropagation();
     try {
+      const successText = shopList.isArchived 
+        ? t('archived_text_unarchived') 
+        : t('archived_text_archived');
+
       if (isMock) {
         ShopListsMock.forEach((element) => {
           if (element._id === shopList._id) element.isArchived = !element.isArchived;
         });
-
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({
-          type: 'success',
-          text1: 'Hotovo',
-          text2: shopList.isArchived
-            ? 'ShopList byl odstraněn z archivu'
-            : 'ShopList byl archivován',
-        });
+        Toast.show({ type: 'success', text1: t('archived_done'), text2: successText });
       } else {
         await setArchived({ shopListId: shopList._id });
-
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({
-          type: 'success',
-          text1: 'Hotovo',
-          text2: shopList.isArchived
-            ? 'ShopList byl odstraněn z archivu'
-            : 'ShopList byl archivován',
-        });
+        Toast.show({ type: 'success', text1: t('archived_done'), text2: successText });
       }
     } catch (err) {
       console.log("Set archived error:", err);
@@ -67,20 +68,16 @@ export default function ShopList({ shopList, listFunctionTobe }) {
       if (isMock) {
         const index = ShopListsMock.findIndex(l => l._id === shopList._id);
         if (index !== -1) ShopListsMock.splice(index, 1);
-
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'ShopList byl smazán' });
+        Toast.show({ type: 'success', text1: t('deleted_done'), text2: t('deleted_text') });
       } else {
         await remove({ shopListId: shopList._id });
-
         listFunction === "list" ? await refresh() : await refreshArchived();
-
-        Toast.show({ type: 'success', text1: 'Hotovo', text2: 'ShopList byl smazán' });
+        Toast.show({ type: 'success', text1: t('deleted_done'), text2: t('deleted_text') });
       }
     } catch (err) {
       console.log('Delete error:', err);
-      Toast.show({ type: 'error', text1: 'Chyba', text2: err.message });
+      Toast.show({ type: 'error', text1: t('error'), text2: err.message });
     }
     setConfirmDelete(false);
   };
@@ -96,33 +93,25 @@ export default function ShopList({ shopList, listFunctionTobe }) {
       <Pressable
         style={({ pressed }) => [
           styles.box,
-          pressed && { backgroundColor: '#e0e0e0' },
+          { backgroundColor: pressed ? themeStyles.boxPressed : themeStyles.boxBackground },
         ]}
         onPress={handleOpen}
       >
         {shopList.ownerId === userId && (
           <View style={styles.actionButtons}>
-            <Pressable
-              onPress={(e) => { e.stopPropagation(); handleDelete(); }}
-              style={styles.iconButton}
-              hitSlop={10}
-            >
+            <Pressable onPress={(e) => { e.stopPropagation(); handleDelete(); }} style={styles.iconButton} hitSlop={10}>
               <Feather name="trash-2" size={22} color="#b00020" />
             </Pressable>
 
-            <Pressable
-              onPress={handleArchive}
-              style={styles.iconButton}
-              hitSlop={10}
-            >
-              <Feather name={"archive"} size={22} color={"#555"} />
+            <Pressable onPress={handleArchive} style={styles.iconButton} hitSlop={10}>
+              <Feather name={"archive"} size={22} color={themeStyles.iconColor} />
             </Pressable>
           </View>
         )}
 
-        <Text style={styles.name}>{shopList.name}</Text>
-        <Text style={styles.details}>
-          Počet položek: {shopList.items ? shopList.items.length : 0}
+        <Text style={[styles.name, { color: themeStyles.textColor }]}>{shopList.name}</Text>
+        <Text style={[styles.details, { color: themeStyles.detailsColor }]}>
+          {t('items_count')}: {shopList.items ? shopList.items.length : 0}
         </Text>
       </Pressable>
 
@@ -145,16 +134,16 @@ export default function ShopList({ shopList, listFunctionTobe }) {
         onBackdropPress={() => setConfirmDelete(false)}
         style={styles.confirmModalContainer}
       >
-        <View style={styles.confirmBox}>
-          <Text style={styles.confirmTitle}>Opravdu chcete smazat?</Text>
+        <View style={[styles.confirmBox, { backgroundColor: themeStyles.confirmBackground }]}>
+          <Text style={[styles.confirmTitle, { color: themeStyles.confirmText }]}>{t('confirm_delete_title')}</Text>
 
           <View style={styles.confirmButtons}>
             <Pressable onPress={confirmDeleteAction} style={[styles.btn, styles.btnYes]}>
-              <Text style={styles.btnText}>Ano</Text>
+              <Text style={styles.btnText}>{t('yes')}</Text>
             </Pressable>
 
-            <Pressable onPress={() => setConfirmDelete(false)} style={[styles.btn, styles.btnNo]}>
-              <Text style={styles.btnText}>Ne</Text>
+            <Pressable onPress={() => setConfirmDelete(false)} style={[styles.btn, { backgroundColor: themeStyles.btnNo }]}>
+              <Text style={styles.btnText}>{t('no')}</Text>
             </Pressable>
           </View>
         </View>
@@ -163,9 +152,9 @@ export default function ShopList({ shopList, listFunctionTobe }) {
   );
 }
 
+
 const styles = StyleSheet.create({
   box: {
-    backgroundColor: '#fff',
     paddingVertical: 30,
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -177,16 +166,15 @@ const styles = StyleSheet.create({
     elevation: 4,
     width: '48%',
     alignItems: 'center',
-    position: 'relative'
+    position: 'relative',
   },
   actionButtons: { position: 'absolute', top: 10, right: 10, flexDirection: 'row', gap: 10 },
   iconButton: { padding: 4 },
-  name: { fontSize: 20, fontWeight: '700', color: '#111', marginBottom: 8 },
-  details: { fontSize: 16, color: '#555' },
+  name: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
+  details: { fontSize: 16 },
   modalContainer: { justifyContent: 'flex-end', margin: 0 },
   confirmModalContainer: { justifyContent: 'center', alignItems: 'center' },
   confirmBox: {
-    backgroundColor: 'white',
     padding: 25,
     borderRadius: 16,
     width: '80%',
@@ -196,6 +184,5 @@ const styles = StyleSheet.create({
   confirmButtons: { flexDirection: 'row', gap: 20 },
   btn: { paddingVertical: 10, paddingHorizontal: 25, borderRadius: 10 },
   btnYes: { backgroundColor: '#b00020' },
-  btnNo: { backgroundColor: '#555' },
   btnText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });
